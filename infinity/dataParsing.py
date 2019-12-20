@@ -1,8 +1,7 @@
 import json
 
 with open("infinityStats/alep_units.json", "r") as read_file:
-   data = json.load(read_file)
-
+    data = json.load(read_file)
 
 
 def getArmyUnits(armyname):
@@ -26,6 +25,17 @@ def getUnitBS(armyname, unitname):
         raise LookupError
 
 
+def getUnitStat(armyname, unitname, stat):
+    with open("infinityStats/" + armyname + "_units.json", "r") as read_file:
+        units = json.load(read_file)
+        for profile in units:
+            if ("obsolete" in profile.keys()):
+                continue
+            elif (profile["isc"] == unitname):
+                return profile[stat]
+        raise LookupError
+
+
 def getAmmoTypes(weaponname):
     with open("infinityStats/weapons.json", "r") as read_file:
         weapons = json.load(read_file)
@@ -33,3 +43,5 @@ def getAmmoTypes(weaponname):
             if(weapon["name"] == weaponname):
                 return weapon["ammo"].split("+")
         raise LookupError
+
+

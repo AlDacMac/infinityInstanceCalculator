@@ -34,10 +34,5 @@ def ContestedRollCritAvg(p1Burst, p1Target, p1Bonus, p2Burst, p2Target, p2Bonus)
     return p1Burst * singleDiceProb
 
 
-def AvgAfterSaves(p1hits, p1crits, p1effect, p2arm, p2bts, p2phys, p2):
-    finalsuccesses = []
-    finalsuccesses += p1crits
-    for i in p1effect:
-        if i == armsave:
             
 
