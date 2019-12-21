@@ -9,7 +9,27 @@ class request:
         self.u2action = u2action
         self.u2attributes = u2attributes
 
-# note on action formatting: actions are to be represented as a tuple, the first element being a string
-# representing the action being taken, and the rest of the elements being laid depending on the action
-#   - for example, ("bsattack,
 
+class action:
+    def __init__(self, skill, tags, tool="N/A"):
+        self.skill = skill
+        self.tool = tool
+
+        self.noncontest = True if "noncontest" in tags else False
+        self.zerolof = True if "zerolof" in tags else False
+        self.attack = True if "attack" in tags else False
+        self.commsattack = True if "commsattack" in tags else False
+        self.dodge = True if "dodge" in tags else False
+        self.reset = True if "reset" in tags else False
+
+
+# returns true if two actions can contest each other
+def contested(action1, action2):
+    if(action1.noncontest or action2.noncontest):
+        return False
+    elif((action1.attack or action1.commsattack) and (action2.attack or action2.commsattack)):
+        return True
+    elif((action1.attack and action2.dodge) or (action1.dodge) and (action2.attack)):
+        return True
+    elif((action1.commsattack and action2.reset) or (action1.reset and action2.commsattack)):
+        return True
