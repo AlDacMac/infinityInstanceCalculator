@@ -1,3 +1,5 @@
+
+
 # attributes tells you extra information about the unit, e.g that it's in cover, it's using surprise
 #   attack, or it is buffed with assisted fire
 class request:
@@ -26,6 +28,7 @@ class request:
 # skill is the literal name from the rules, e.g "bsattack", "dodge"
 # tags is a set of strings that contain extra information about the action, e.g a smoke grenade thrown
 #   in such a way as to not block LoS would have the "noncontest" tag
+#   - note: noncontested needs to be set by the action creator based on things like hacking program choice
 # tool tells you what weapon/hacking program is being used to carry out the skill
 class action:
     def __init__(self, skill, tags, tool="N/A"):
