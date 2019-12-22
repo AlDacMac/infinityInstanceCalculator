@@ -43,7 +43,6 @@ class action:
         self.tool = tool
 
         self.noncontest = True if "noncontest" in tags else False
-        self.zerolof = True if "zerolof" in tags else False
         self.attack = True if "attack" in tags else False
         self.comattack = True if "commsattack" in tags else False
         self.dodge = True if "dodge" in tags else False
