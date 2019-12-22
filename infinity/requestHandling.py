@@ -1,15 +1,13 @@
-
+from infinity.dataParsing import *
 
 # attributes tells you extra information about the unit, e.g that it's in cover, it's using surprise
 #   attack, or it is buffed with assisted fire
 class request:
-    def __init__(self, u1army, u1name, u1action, u1attributes, u2army, u2name, u2action, u2attributes):
-        self.u1army = u1army
-        self.u1tname = u1name
+    def __init__(self, u1unit, u1action, u1attributes, u2unit, u2action, u2attributes):
+        self.u1unit = u1unit
         self.u1action = u1action
         self.u1attributes = u1attributes
-        self.u2army = u2army
-        self.u2name = u2name
+        self.u2unit = u2unit
         self.u2action = u2action
         self.u2attributes = u2attributes
 
@@ -24,9 +22,18 @@ class request:
         elif ((self.u1action.comattack and self.u2action.reset) or (self.u1action.reset and self.u2action.comattack)):
             return True
 
+    def handle(self):
+        if (self.u1action.skill == "bsattack"):
+            return self.handlebs()
+
+    def handlebs(self):
+        mods = 0
+        if (("0vis" in self.u1attributes) and not("Multispectral Visor L2" or in "Sixth Sense L2")
+
+
 
 # skill is the literal name from the rules, e.g "bsattack", "dodge"
-# tags is a set of strings that contain extra information about the action, e.g a smoke grenade thrown
+# tags is a set of strings that contain information about the action, e.g a smoke grenade thrown
 #   in such a way as to not block LoS would have the "noncontest" tag
 #   - note: noncontested needs to be set by the action creator based on things like hacking program choice
 # tool tells you what weapon/hacking program is being used to carry out the skill
@@ -48,5 +55,8 @@ class action:
             return True
         else:
             return False
+
+
+
 
 
