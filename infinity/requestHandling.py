@@ -1,13 +1,14 @@
 from infinity.dataParsing import *
 
-# attributes tells you extra information about the unit, e.g that it's in cover, it's using surprise
-#   attack, or it is buffed with assisted fire
-class request:
-    def __init__(self, u1unit, u1action, u1attributes, u2unit, u2action, u2attributes):
-        self.u1unit = u1unit
+
+# attributes tells you extra information about the unit, e.g that it's in cover or a low vis zone, it's using surprise
+#   attack, or it is buffed with assisted fire - note that all optional skills are here if they are in use
+class Request:
+    def __init__(self, u1, u1action, u1attributes, u2, u2action, u2attributes):
+        self.u1 = u1
         self.u1action = u1action
         self.u1attributes = u1attributes
-        self.u2unit = u2unit
+        self.u2 = u2
         self.u2action = u2action
         self.u2attributes = u2attributes
 
@@ -37,7 +38,7 @@ class request:
 #   in such a way as to not block LoS would have the "noncontest" tag
 #   - note: noncontested needs to be set by the action creator based on things like hacking program choice
 # tool tells you what weapon/hacking program is being used to carry out the skill
-class action:
+class Action:
     def __init__(self, skill, tags, tool="N/A"):
         self.skill = skill
         self.tool = tool
