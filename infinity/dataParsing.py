@@ -2,7 +2,8 @@ import json
 
 
 optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1", "Sixth Sense L2", "Surprise Shot L1",
-            "Surprise Shot L2", "Surprise Attack", "Marksmanship L1", "Marksmanship L2", "Poison"}
+            "Surprise Shot L2", "Surprise Attack", "Marksmanship L1", "Marksmanship L2", "Poison", "Martial Arts L1"
+            , "Martial Arts L2", "Martial Arts L3", "Martial Arts L4", "Martial Arts L5"}
 
 
 def getArmyUnits(armyname):
@@ -15,14 +16,15 @@ def getArmyUnits(armyname):
             print(profile["isc"])
 
 
-class Profile:
+class Unit:
     def __init__(self, army, isc, child):
         self.army = army.lower()[0:4]
         self.isc = isc
         self.child = child
+
         # Unit skills and equipment are divided into those that are obligatory and those that are optional
-        obligs: set = set({})
-        options: set = set({})
+        self.obligs: set = set({})
+        self.options: set = set({})
         with open("infinityStats/" + self.army + "_units.json", "r") as read_file:
             units = json.load(read_file)
             for profile in units:
@@ -32,17 +34,17 @@ class Profile:
                     if "spec" in profile:
                         for spec in profile["spec"]:
                             if spec in optional:
-                                options.add(spec)
+                                self.options.add(spec)
                             else:
-                                obligs.add(spec)
+                                self.obligs.add(spec)
                     for child in profile["childs"]:
                         if child["name"] == self.child:
                             if "spec" in child:
                                 for spec in child["spec"]:
                                     if spec in optional:
-                                        options.add(spec)
+                                        self.options.add(spec)
                                     else:
-                                        obligs.add(spec)
+                                        self.obligs.add(spec)
 
     def getStat(self, stat):
         with open("infinityStats/" + self.army + "_units.json", "r") as read_file:
