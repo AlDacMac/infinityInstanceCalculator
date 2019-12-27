@@ -17,9 +17,9 @@ def getArmyUnits(armyname):
 
 
 class Unit:
-    def __init__(self, army, isc, child):
+    def __init__(self, army, name, child):
         self.army = army.lower()[0:4]
-        self.isc = isc
+        self.name = name
         self.child = child
 
         # Unit skills and equipment are divided into those that are obligatory and those that are optional
@@ -30,7 +30,7 @@ class Unit:
             for profile in units:
                 if ("obsolete" in profile):
                     continue
-                elif (profile["isc"] == self.isc):
+                elif (profile["name"] == name):
                     if "spec" in profile:
                         for spec in profile["spec"]:
                             if spec in optional:
@@ -38,13 +38,13 @@ class Unit:
                             else:
                                 self.obligs.add(spec)
                     for child in profile["childs"]:
-                        if child["name"] == self.child:
+                        if child["name"] == child:
                             if "spec" in child:
                                 for spec in child["spec"]:
                                     if spec in optional:
-                                        self.options.add(spec)
+                                        options.add(spec)
                                     else:
-                                        self.obligs.add(spec)
+                                        obligs.add(spec)
 
     def getStat(self, stat):
         with open("infinityStats/" + self.army + "_units.json", "r") as read_file:
@@ -52,7 +52,7 @@ class Unit:
             for profile in units:
                 if ("obsolete" in profile.keys()):
                     continue
-                elif (profile["isc"] == self.isc):
+                elif (profile["name"] == self.name):
                     return profile[stat]
             raise LookupError
 
