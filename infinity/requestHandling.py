@@ -178,5 +178,18 @@ class Unit:
         return getUnitStat(self.army, self.name, stat)
 
 
+class SaveOutcome:
+    def __init__(self):
+        self.wounded = 0
+        self.unconscious = 0
+        self.immobilized = 0
+        self.dead = 0
+        self.isolated = 0
+        self.posessed = 0
+        self.stunned = 0
+        self.burnt = 0
+        self.sepsitorised = 0
+
+
 
 
