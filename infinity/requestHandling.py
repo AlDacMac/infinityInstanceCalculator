@@ -1,3 +1,4 @@
+from infinity.dataParsing import *
 
 
 # attributes tells you extra information about the unit, e.g that it's in cover or a low vis zone, it's using surprise
@@ -160,90 +161,6 @@ class Action:
             return True
         else:
             return False
-
-class SaveOutcome:
-    def __init__(self):
-        self.wounded = 0
-        self.unconscious = 0
-        self.immobilized = 0
-        self.dead = 0
-        self.isolated = 0
-        self.posessed = 0
-        self.stunned = 0
-        self.burnt = 0
-        self.sepsitorised = 0
-
-import json
-
-#TODO Find a way to handle NFB equipment
-optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1", "Sixth Sense L2", "Surprise Shot L1",
-            "Surprise Shot L2", "Surprise Attack", "Marksmanship L1", "Marksmanship L2", "Poison", "Martial Arts L1"
-            , "Martial Arts L2", "Martial Arts L3", "Martial Arts L4", "Martial Arts L5", "Guard L1", "Guard L2"
-            , "Guard L3", "Guard L4", "Protheion L1", "Protheion L2", "Protheion L3", "Protheion L4", "Protheion L5",
-            "Natural Born Warrior: A", "Natural Born Warrior: B", "I-Khol L1", "I-Khol L2", "I-Khol L3", "Beserk",
-            "Marksmanship LX", "Full Auto L1", "Full Auto L2", "CH: Total Camouflage", "CH: Camouflage"}
-
-
-def getArmyUnits(armyname):
-    unit_names = ""
-    with open("infinityStats/" + armyname + "_units.json", "r") as read_file:
-        units = json.load(read_file)
-        for profile in units:
-            if("obsolete" in profile.keys()):
-                continue
-            print(profile["isc"])
-
-
-class Unit:
-    def __init__(self, army, name, child):
-        self.army = army.lower()[0:4]
-        self.name = name
-        self.child = child
-        self.stats = {}
-
-        # Unit skills and equipment are divided into those that are obligatory and those that are optional
-        self.obligs: set = set({})
-        self.options: set = set({})
-        with open("infinityStats/" + self.army + "_units.json", "r") as read_file:
-            units = json.load(read_file)
-            for profile in units:
-                if ("obsolete" in profile):
-                    continue
-                elif (profile["name"] == name):
-                    if "spec" in profile:
-                        for spec in profile["spec"]:
-                            if spec in optional:
-                                self.options.add(spec)
-                            else:
-                                self.obligs.add(spec)
-                    for child in profile["childs"]:
-                        if child["name"] == child:
-                            if "spec" in child:
-                                for spec in child["spec"]:
-                                    if spec in optional:
-                                        self.options.add(spec)
-                                    else:
-                                        self.obligs.add(spec)
-
-    def getStat(self, stat):
-        with open("infinityStats/" + self.army + "_units.json", "r") as read_file:
-            units = json.load(read_file)
-            for profile in units:
-                if ("obsolete" in profile.keys()):
-                    continue
-                elif (profile["name"] == self.name):
-                    return profile[stat]
-            raise LookupError
-
-
-def getAmmoTypes(weaponname):
-    with open("infinityStats/weapons.json", "r") as read_file:
-        weapons = json.load(read_file)
-        for weapon in weapons:
-            if(weapon["name"] == weaponname):
-                return weapon["ammo"].split("+")
-        raise LookupError
-
 
 
 
