@@ -59,7 +59,3 @@ def populateUnitSpec(armyname, unitname, obligs, options):
                                     options.add(spec)
                                 else:
                                     obligs.add(spec)
-
-
-
-
