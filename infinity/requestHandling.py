@@ -164,18 +164,18 @@ class Action:
 
 
 class Unit:
-    def __init__(self, army, name, child):
-        self.army = army.lower()[0:4]
+    def __init__(self, armyname, name, child):
+        self.armyname = armyname.lower()[0:4]
         self.name = name
         self.child = child
 
         # Unit skills and equipment are divided into those that are obligatory and those that are optional
         self.obligs: set = set({})
         self.options: set = set({})
-        populateUnitSpec(self.army, self.name, self.obligs, self.options)
+        populateUnitSpec(self.armyname, self.name, self.obligs, self.options)
 
     def getStat(self, stat):
-        return getUnitStat(self.army, self.name, stat)
+        return getUnitStat(self.armyname, self.name, stat)
 
 
 class SaveOutcome:

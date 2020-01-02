@@ -7,13 +7,15 @@ optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1
 
 
 def getArmyUnits(armyname):
-    unit_names = ""
-    with open("infinityStats/" + armyname + "_units.json", "r") as read_file:
+    unit_names = []
+    with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if("obsolete" in profile.keys()):
                 continue
-            print(profile["isc"])
+            # print(profile["name"])
+            unit_names.append(profile["name"])
+    return unit_names
 
 
 def getAmmoTypes(weaponname):
@@ -25,8 +27,8 @@ def getAmmoTypes(weaponname):
         raise LookupError
 
 
-def getUnitStat(army, unitname, stat):
-    with open("infinityStats/" + army + "_units.json", "r") as read_file:
+def getUnitStat(armyname, unitname, stat):
+    with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if ("obsolete" in profile.keys()):
@@ -36,8 +38,8 @@ def getUnitStat(army, unitname, stat):
         raise LookupError
 
 
-def populateUnitSpec(army, unitname, obligs, options):
-    with open("infinityStats/" + army + "_units.json", "r") as read_file:
+def populateUnitSpec(armyname, unitname, obligs, options):
+    with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if ("obsolete" in profile):
