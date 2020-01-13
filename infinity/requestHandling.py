@@ -275,5 +275,108 @@ class SaveOutcome:
         self.targeted = 0
 
 
+# TODO Implement immunity, especially the ability to choose attribute
+# TODO Make seperate saver for hacking attacks (hacking programs don't use normal effects of the ammo)
+# hits is a tuple, the first element is crits and the second is regular hits
+# I assume exp, da, and fire don't stack
+def makeSaves(unit, hits, ammotypes, modifiers, damage):
+    outcome = SaveOutcome
+    failedarmsaves = 0
+    failedbtssaves = 0
+    failedphsaves = 0
+    arm = int(unit.getStat('arm'))
+    bts = int(unit.getStat('bts'))
+    ph = int(unit.getStat('ph'))
+    if("Monofilament" in ammotypes or "K1" in ammotypes):
+        arm = 0
+    elif("AP" in ammotypes):
+        arm = ceil(arm / 2.0)
+    if("Breaker" in ammotypes or "E/M" in ammotypes or "E/M2" in ammotypes):
+        bts = ceil(bts/2.0)
+    if("ADH" in ammotypes):
+        ph = max(0, ph - 6)
+    if("Cover" in modifiers):
+        arm += 3
+        bts += 3
+    armfailchance = min(1, max(0, (damage - arm) / 20.0))
+    btsfailchance = min(1, max(0, (damage - bts) / 20.0))
+    phfailchance = min(1, max(0, (damage - ph) / 20.0))
 
+    # Failed saves from crits
+    if not(armEffectOnCrit.isdisjoint(ammotypes)):
+        failedarmsaves += hits[0]
+    if not(btsEffectOnCrit.isdisjoint(ammotypes)):
+        failedbtssaves += hits[0]
+    # I assume regular bts saves from plasma only occur on crit if there's nothing causing normal bts crits
+    elif("Plasma" in ammotypes):
+        failedbtssaves += hits[0] * btsfailchance
+    if not(phEffectOnCrit.isdisjoint(ammotypes)):
+        failedphsaves += hits[0]
+
+    # Regular arm saves
+    if("EXP" in ammotypes):
+        failedarmsaves += (hits[1] * 3 * armfailchance) + (hits[0] * 2 * armfailchance)
+    elif("DA" in ammotypes):
+        failedarmsaves += (hits[1] * 2 * armfailchance) + (hits[0] * armfailchance)
+    elif("Fire" in ammotypes):
+        failedarmsaves += recurringFireAvg(armfailchance, (hits[0] + hits[1]))
+    elif not(armAmmo.isdisjoint(ammotypes)):
+        failedarmsaves += armfailchance * hits[1]
+
+    # Regular bts saves
+    if not({"DT", "EM/2", "Stun", "Viral"}.isdisjoint(ammotypes)):
+        failedbtssaves += (hits[1] * 2 * btsfailchance) + (hits[0] * btsfailchance)
+    elif not(btsAmmo.isdisjoint(ammotypes)):
+        failedbtssaves += hits[1] * btsfailchance
+
+    # Regular ph saves
+    if not(phAmmo.isdisjoint(ammotypes)):
+        failedphsaves += phfailchance * hits[1]
+
+    if ("Phermonic" in ammotypes):
+        outcome.targeted += hits[1] + hits[0]
+    armFailEffects(unit, failedarmsaves, ammotypes, outcome)
+    btsFailEffects(unit, failedbtssaves, ammotypes, outcome)
+    phFailEffects(unit, failedphsaves, ammotypes, outcome)
+    return outcome
+
+
+def armFailEffects(unit, failures, ammotypes, outcome):
+    if not(armWoundAmmo.isdisjoint(ammotypes)):
+        outcome.wounded += failures
+        if ("T2" in ammotypes):
+            outcome.wounded += failures
+        if ("Fire" in ammotypes):
+            outcome.burnt += failures
+    if ("Monofilament" in ammotypes):
+        outcome.dead += failures
+
+
+def btsFailEffects(unit, failures, ammotypes, outcome):
+    if not(btsWoundAmmo.isdisjoint(ammotypes)):
+        outcome.wounded += failures
+    if ("E/M" in ammotypes or "E/M2" in ammotypes):
+        outcome.isolated += failures
+        if (unit.getStat("Type") == "HI" or unit.getStat("Type") == "TAG" or unit.getStat("Type") == "REM"):
+            outcome.immobilized2 += failures
+    if ("Flash" in ammotypes or "Stun" in ammotypes):
+        outcome.stunned += failures
+    if ("Sepsitor" in ammotypes):
+        outcome.sepsitorised += failures
+    if ("Jammer" in ammotypes):
+        outcome.isolated += failures
+
+
+def phFailEffects(unit, failures, ammotypes, outcome):
+    if ("ADH" in ammotypes):
+        outcome.immobilized2 += failures
+
+
+def recurringFireAvg(failchance, nosaves):
+    failedsaves = 0
+    for i in range(20):
+        failed = failchance * nosaves
+        nosaves = failed
+        failedsaves += failed
+    return failedsaves
 
