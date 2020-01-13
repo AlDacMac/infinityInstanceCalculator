@@ -230,16 +230,30 @@ class Unit:
 
 
 class SaveOutcome:
+    wounded = int
+    unconscious = int
+    immobilized2 = int
+    immobilized1 = int
+    dead = int
+    isolated = int
+    posessed = int
+    stunned = int
+    burnt = int
+    sepsitorised = int
+    targeted = int
+
     def __init__(self):
         self.wounded = 0
         self.unconscious = 0
-        self.immobilized = 0
+        self.immobilized2 = 0
+        self.immobilized1 = 0
         self.dead = 0
         self.isolated = 0
         self.posessed = 0
         self.stunned = 0
         self.burnt = 0
         self.sepsitorised = 0
+        self.targeted = 0
 
 
 
