@@ -1,4 +1,6 @@
 from infinity.dataParsing import *
+from infinity.diceMaths import *
+from math import *
 
 
 # attributes tells you extra information about the unit, e.g that it's in cover or a low vis zone, it's using surprise
