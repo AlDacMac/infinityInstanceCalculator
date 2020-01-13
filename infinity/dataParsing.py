@@ -59,3 +59,12 @@ def getAmmoTypes(weaponname):
             if(weapon["name"] == weaponname):
                 return weapon["ammo"].split("+")
         raise LookupError
+
+
+def getWeaponBurst(weaponname):
+    with open("infinityStats/weapons.json", "r") as read_file:
+        weapons = json.load(read_file)
+        for weapon in weapons:
+            if(weapon["name"] == weaponname):
+                return int(weapon["burst"])
+        raise LookupError
