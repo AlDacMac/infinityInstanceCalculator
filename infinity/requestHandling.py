@@ -249,17 +249,6 @@ class Unit:
 
 
 class SaveOutcome:
-    wounded = int
-    unconscious = int
-    immobilized2 = int
-    immobilized1 = int
-    dead = int
-    isolated = int
-    posessed = int
-    stunned = int
-    burnt = int
-    sepsitorised = int
-    targeted = int
 
     def __init__(self):
         self.wounded = 0
@@ -280,7 +269,7 @@ class SaveOutcome:
 # hits is a tuple, the first element is crits and the second is regular hits
 # I assume exp, da, and fire don't stack
 def makeSaves(unit, hits, ammotypes, modifiers, damage):
-    outcome = SaveOutcome
+    outcome = SaveOutcome()
     failedarmsaves = 0
     failedbtssaves = 0
     failedphsaves = 0
