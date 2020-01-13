@@ -190,9 +190,10 @@ class Request:
 #   - note: noncontested needs to be set by the action creator based on things like hacking program choice
 # tool tells you what weapon/hacking program is being used to carry out the skill
 class Action:
-    def __init__(self, skill, tags, tool="N/A"):
+    def __init__(self, skill, tags, tool="N/A", tool2="N/A"):
         self.skill = skill
         self.tool = tool
+        self.tool2 = tool2
 
         if ("noncontest" in tags): self.noncontest = True
         else: self.noncontest = False
