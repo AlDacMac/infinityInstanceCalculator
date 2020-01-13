@@ -3,6 +3,10 @@ from infinity.dataParsing import *
 
 # attributes tells you extra information about the unit, e.g that it's in cover or a low vis zone, it's using surprise
 #   attack, or it is buffed with assisted fire - note that all optional skills are here if they are in use
+
+# Imagine a request as describing a general 'state of play' - units are in positions, stuff like smoke is down on the
+#   board, ranges have been found. The request is like the minute you start rolling the dice to see what hapens.
+# TODO consider if enforcing that the first three elements of attributes be Range, Burst Mod, and other is a good idea
 class Request:
     def __init__(self, u1, u1action, u1attributes, u2, u2action, u2attributes):
         self.u1 = u1
@@ -24,11 +28,57 @@ class Request:
             return True
 
     def handle(self):
-        if(self.u1action == "bsattack"):
+        if(self.u1action.skill == "bsattack"):
             u1mod = self.getbsmods(1)
-        if(self.u2action == "bsattack"):
+            if("technical" in self.u1attributes):
+                u1stat = int(self.u1.getStat("wip"))
+            elif("throwing" in self.u1attributes):
+                u1stat = int(self.u1.getStat("ph"))
+            else:
+                u1stat = int(self.u1.getStat("bs"))
+            u1stat += u1mod
+            u1burst = getWeaponBurst(self.u1action.tool)
+            for att in self.u1attributes:
+                if type(att) == tuple:
+                    if att[0] == "burst":
+                        u1burst = att[1]
+            u1burst += self.getbsburstmods(1)
+        if(self.u2action.skill == "bsattack"):
             u2mod = self.getbsmods(2)
+            if ("technical" in self.u1attributes):
+                u2stat = int(self.u2.getStat("wip"))
+            elif ("throwing" in self.u1attributes):
+                u2stat = int(self.u2.getStat("ph"))
+            else:
+                u2stat = int(self.u2.getStat("bs"))
+            u2stat += u2mod
+            u2burst = getWeaponBurst(self.u2action.tool)
+            for att in self.u2attributes:
+                if type(att) == tuple:
+                    if att[0] == "burst":
+                        u2burst = att[1]
+            u2burst += self.getbsburstmods(2)
+        u1avg = ContestedRollHitAvg(u1burst, u1stat, u2burst, u2stat)
+        print(u1avg)
 
+
+    def getbsburstmods(self, whichone):
+        mod = 0
+        if(whichone == 1):
+            u = self.u1
+            uattributes = self.u1attributes
+        else:
+            u = self.u2
+            uattributes = self.u2attributes
+        if not({"fireteam 5", "fireteam 4", "fireteam 3"}.isdisjoint(uattributes)):
+            mod += 1
+        if("Full Auto L1" in uattributes):
+            mod += 1
+        if("Twin Weapons" in uattributes):
+            mod += 1
+        return mod
+
+    # TODO move this into its own method, pass it attributes and obligs, and just make them one set of things
     def getbsmods(self, whichone):
         if whichone == 1:
             uattributes = self.u1attributes
@@ -45,7 +95,7 @@ class Request:
         if ("nolof" in uattributes
                 and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
             umod -= 6
-        elif (("Eclipse Smoke" in uattributes) #ecsmoke in u1attributes means that u is being affected by an eclipse smoke zone
+        elif (("Eclipse Smoke" in uattributes) #ecsmoke in u1attributes means that u1 is being affected by an eclipse smoke zone
                 and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
             umod -= 6
         elif (("Smoke" in uattributes)
