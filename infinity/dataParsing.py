@@ -18,15 +18,6 @@ def getArmyUnits(armyname):
     return unit_names
 
 
-def getAmmoTypes(weaponname):
-    with open("infinityStats/weapons.json", "r") as read_file:
-        weapons = json.load(read_file)
-        for weapon in weapons:
-            if(weapon["name"] == weaponname):
-                return weapon["ammo"].split("+")
-        raise LookupError
-
-
 def getUnitStat(armyname, unitname, stat):
     with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
@@ -59,3 +50,12 @@ def populateUnitSpec(armyname, unitname, obligs, options):
                                     options.add(spec)
                                 else:
                                     obligs.add(spec)
+
+
+def getAmmoTypes(weaponname):
+    with open("infinityStats/weapons.json", "r") as read_file:
+        weapons = json.load(read_file)
+        for weapon in weapons:
+            if(weapon["name"] == weaponname):
+                return weapon["ammo"].split("+")
+        raise LookupError
