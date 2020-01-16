@@ -73,3 +73,23 @@ def getWeaponBurst(weaponname):
             if(weapon["name"] == weaponname):
                 return int(weapon["burst"])
         raise LookupError
+
+
+def getWeaponAttr(weaponname):
+    with open("infinityStats/weapons.json", "r") as read_file:
+        weapons = json.load(read_file)
+        for weapon in weapons:
+            if (weapon["name"] == weaponname):
+                if "attr" in weapon:
+                    return weapon["attr"]
+                else:
+                    return "default"
+        raise LookupError
+
+
+def getHackingBurst(programname):
+    with open("infinityStats/hacking.json", "r") as read_file:
+        hacking = json.load(read_file)
+        for program in hacking["Hacking Programs"]:
+            if program["Name"] == programname:
+                return int(program["Burst"])

@@ -218,6 +218,29 @@ class Action:
         else:
             return False
 
+    def getAttr(self):
+        if(self.skill in {"BS Attack", "Triangulated Fire", "Speculative Fire"}):
+            if (getWeaponAttr(self.tool) != "default"):
+                return getWeaponAttr(self.tool)
+            else:
+                return 'BS'
+        elif(self.skill in {"Intuitive Attack", "Hacking", "Reset", "Engineer", "Doctor", "Pheroware", "Discover",
+                            "Sensor", }):
+            return 'WIP'
+        elif(self.skill == "Dodge", "CC Attack", "Change Facing", "Engage", "Combat Jump", "Infiltrate"):
+            return 'PH'
+
+    def getActionBurst(self):
+        if(self.skill in {'BS Attack', 'Triangulated Fire', 'Speculative Fire', "BS Attack - Direct Template Weapon"}):
+            return getWeaponBurst(self.tool)
+        elif(self.skill == "Hacking"):
+            return getHackingBurst(self.tool)
+        # TODO Create json for pheroware? FML
+        # elif(self.skill == "Pheroware"):
+            # return getPheroBurst(self.tool)
+        else:
+            return 1
+
 
 class Unit:
 
