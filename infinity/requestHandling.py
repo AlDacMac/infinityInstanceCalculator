@@ -210,7 +210,7 @@ class Action:
         else: self.reset =  False
 
     # Tells you if the action is an attack or a comms attack
-    def isattack(self):
+    def isGenericAttack(self):
         if self.comattack or self.attack:
             return True
         else:
