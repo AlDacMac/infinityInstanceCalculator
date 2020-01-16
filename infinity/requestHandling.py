@@ -39,7 +39,7 @@ class Request:
     def contested(self):
         if (self.u1action.noncontest or self.u2action.noncontest):
             return False
-        elif (self.u1action.isattack() and self.u2action.isattack()):
+        elif (self.u1action.isGenericAttack() and self.u2action.isGenericAttack()):
             return True
         elif ((self.u1action.attack and self.u2action.dodge) or (self.u1action.dodge) and (self.u2action.attack)):
             return True
