@@ -260,9 +260,9 @@ def makeSaves(unit, hits, ammotypes, modifiers, damage):
     failedarmsaves = 0
     failedbtssaves = 0
     failedphsaves = 0
-    arm = int(unit.getStat('arm'))
-    bts = int(unit.getStat('bts'))
-    ph = int(unit.getStat('ph'))
+    arm = int(unit.getStat('ARM'))
+    bts = int(unit.getStat('BTS'))
+    ph = int(unit.getStat('PH'))
     if("Monofilament" in ammotypes or "K1" in ammotypes):
         arm = 0
     elif("AP" in ammotypes):

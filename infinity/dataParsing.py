@@ -25,7 +25,7 @@ def getUnitStat(armyname, unitname, stat):
             if ("obsolete" in profile.keys()):
                 continue
             elif (profile["name"] == unitname):
-                return profile[stat]
+                return profile[stat.lower()]
         raise LookupError
 
 
