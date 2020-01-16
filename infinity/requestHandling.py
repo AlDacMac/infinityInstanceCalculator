@@ -25,7 +25,8 @@ phEffectOnCrit = {"ADH"}
 
 # Imagine a request as describing a general 'state of play' - units are in positions, stuff like smoke is down on the
 #   board, ranges have been found. The request is like the minute you start rolling the dice to see what hapens.
-# TODO consider if enforcing that the first three elements of attributes be Range, Burst Mod, and other is a good idea
+# The first 5 elements of attributes are range, burst override, extra mod, fireteam cc bonus and gang up
+# TODO should this even be a class? I could just run through a list of methods with the attributes and shit - they aren't changing or anything
 class Request:
     def __init__(self, u1, u1action, u1attributes, u2, u2action, u2attributes):
         self.u1 = u1
