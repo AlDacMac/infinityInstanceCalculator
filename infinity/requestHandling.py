@@ -47,163 +47,147 @@ class Request:
             return True
 
     def handle(self):
-        if(self.u1action.skill == "bsattack"):
-            u1mod = self.getbsmods(1)
-            if("technical" in self.u1attributes):
-                u1stat = int(self.u1.getStat("wip"))
-            elif("throwing" in self.u1attributes):
-                u1stat = int(self.u1.getStat("ph"))
-            else:
-                u1stat = int(self.u1.getStat("bs"))
-            u1stat += u1mod
-            u1burst = getWeaponBurst(self.u1action.tool)
-            for att in self.u1attributes:
-                if type(att) == tuple:
-                    if att[0] == "burst":
-                        u1burst = att[1]
-            u1burst += self.getbsburstmods(1)
-        if(self.u2action.skill == "bsattack"):
-            u2mod = self.getbsmods(2)
-            if ("technical" in self.u1attributes):
-                u2stat = int(self.u2.getStat("wip"))
-            elif ("throwing" in self.u1attributes):
-                u2stat = int(self.u2.getStat("ph"))
-            else:
-                u2stat = int(self.u2.getStat("bs"))
-            u2stat += u2mod
-            u2burst = getWeaponBurst(self.u2action.tool)
-            for att in self.u2attributes:
-                if type(att) == tuple:
-                    if att[0] == "burst":
-                        u2burst = att[1]
-            u2burst += self.getbsburstmods(2)
+        u1attr = self.u1action.getAttr()
+        u1stat = self.u1.getstat(u1attr)
+        if (self.u1action.skill == "BS Attack"):
+            u1stat += getBSMods(self.u1, self.u1attributes, self.u2, self.u2attributes)
+        u1burst = getBurst(self.u1action, self.u1, self.u1attributes, self.u2, self.u2attributes)
+
+        u2attr = self.u2action.getAttr()
+        u2stat = self.u2.getstat(u2attr)
+        if (self.u2action.skill == "BS Attack"):
+            u2stat += getBSMods(self.u2, self.u2attributes, self.u1, self.u1attributes)
+        u2burst = getBurst(self.u2action, self.u2, self.u2attributes, self.u1, self.u1attributes)
+
         u1avg = ContestedRollHitAvg(u1burst, u1stat, u2burst, u2stat)
         print(u1avg)
 
 
-    def getbsburstmods(self, whichone):
-        mod = 0
-        if(whichone == 1):
-            u = self.u1
-            uattributes = self.u1attributes
+def getAmmo(u, uaction, uattributes, op, opattributes):
+
+
+def getBurst(uaction, u, uattributes, op, opattributes):
+    if (uattributes[1] is not None):
+        return uattributes[1]
+    else:
+        burst = uaction.getActionBurst()
+        if(uaction.skill in {"BS Attack", "Suppressive Fire", "Triangulated Fire", "Direct Template Wepaon"}):
+            if not ({"fireteam 5", "fireteam 4", "fireteam 3"}.isdisjoint(uattributes)):
+                burst += 1
+            if ("Full Auto L1" in uattributes):
+                burst += 1
+            if ("Twin Weapons" in uattributes):
+                burst += 1
+            if ("Saturation Zone" in uattributes):
+                burst -= 1
+        elif(uaction.skill == "CC Attack"):
+            # Martial Arts L5 will just be implemented using burst override, as it needs to ignore usage of other stuff
+            if ("Martial Arts L4" in uattributes):
+                burst += 1
+            if (uattributes[3] is not None):
+                burst += uattributes[3]
+            elif (uattributes[4] is not None):
+                burst += uattributes[4]
+        return burst
+
+
+def getBSMods(u, uattributes, op, opattributes):
+    umod = 0
+    # Visiblity mods are determined using an if/elif as only the higher will ever apply
+    if ("nolof" in uattributes
+            and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
+        umod -= 6
+    elif ((
+                  "Eclipse Smoke" in uattributes)  # ecsmoke in u1attributes means that u1 is being affected by an eclipse smoke zone
+          and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
+        umod -= 6
+    elif (("Smoke" in uattributes)
+          and ({"Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))
+          and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
+        umod -= 6
+    elif (("White Noise" in uattributes)
+          and not ({"Multispectral Visor L1", "Multispectral Visor L2",
+                    "Multispectral Visor L3"}.isdisjoint(u.obligs))
+          and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
+        umod -= 6
+    elif (("Poor Visibility" in uattributes)
+          and ({"Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))):
+        if ("Multispectral Visor L1" in u.obligs):
+            umod -= 3
         else:
-            u = self.u2
-            uattributes = self.u2attributes
-        if not({"fireteam 5", "fireteam 4", "fireteam 3"}.isdisjoint(uattributes)):
-            mod += 1
-        if("Full Auto L1" in uattributes):
-            mod += 1
-        if("Twin Weapons" in uattributes):
-            mod += 1
-        return mod
-
-    # TODO move this into its own method, pass it attributes and obligs, and just make them one set of things
-    def getbsmods(self, whichone):
-        if whichone == 1:
-            uattributes = self.u1attributes
-            opattributes = self.u2attributes
-            u = self.u1
-            op = self.u2
+            umod -= 6
+    elif (("Low Visibility" in uattributes)
+          and (
+          {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))):
+        umod -= 3
+    # There are different versions of surprise attack and shot for different marker states as future proofing for
+    #   multiple attackers on each side
+    if ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(u.obligs)):
+        if not ("Multispectral Visor L3" in u.obligs):
+            if ("Surprise Shot L2:Camo" in opattributes):
+                umod -= 6
+            elif ("Surprise Shot L1:camo" in opattributes):
+                umod -= 3
+            elif ("Surprise Attack:camo" in opattributes and not ("Natural Born Warrior: A" in uattributes)):
+                umod -= 6
+        if ({"Biometric Visor L1", "Biometric Visor L2"}.isdisjoint(u.obligs)):
+            if ("Surprise Shot L2:imp/echo" in opattributes):
+                umod -= 6
+            elif ("Surprise Shot L1:imp/echo" in opattributes):
+                umod -= 3
+            elif ("Surprise Attack:imp/echo" in opattributes and not ("Natural Born Warrior: A" in uattributes)):
+                umod -= 6
+        if ("Surprise Shot L2:decoy" in opattributes):
+            umod -= 6
+        elif ("Surprise Shot L1:decoy" in opattributes):
+            umod -= 3
+        elif ("Surprise Attack:decoy" in opattributes and not ("Natural Born Warrior: A" in uattributes)):
+            umod -= 6
+    if ({"Multispectral Visor L1", "Multispectral Visor L2"}.isdisjoint(u.obligs)):
+        if ("Multispectral Visor L1" in u.obligs):
+            if ("CH: Total Camouflage" in opattributes or "ODD: Optical Disruptor" in op.obligs):
+                umod -= 3
         else:
-            uattributes = self.u2attributes
-            opattributes = self.u1attributes
-            u = self.u2
-            op = self.u1
-        umod = 0
-        # Visiblity mods are determined using an if/elif as only the higher will ever apply
-        if ("nolof" in uattributes
-                and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
-            umod -= 6
-        elif (("Eclipse Smoke" in uattributes) #ecsmoke in u1attributes means that u1 is being affected by an eclipse smoke zone
-                and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
-            umod -= 6
-        elif (("Smoke" in uattributes)
-                and ({"Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))
-                and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
-            umod -= 6
-        elif (("White Noise" in uattributes)
-                and not({"Multispectral Visor L1", "Multispectral Visor L2",
-                         "Multispectral Visor L3"}.isdisjoint(u.obligs))
-                and ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(uattributes))):
-            umod -= 6
-        elif (("Poor Visibility" in uattributes)
-                and ({"Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))):
-            if ("Multispectral Visor L1" in u.obligs):
-                umod -= 3
-            else:
+            if ("CH: Total Camouflage" in opattributes or "ODD: Optical Disruptor" in op.obligs):
                 umod -= 6
-        elif (("Low Visibility" in uattributes)
-                and ({"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}.isdisjoint(u.obligs))):
+            if ("CH: Mimetism" in op.obligs or "CH: Camouflage" in opattributes):
+                umod -= 3
+    if ("Full Auto L2" in opattributes):
+        umod -= 3
+    if ("cover" in opattributes and {"Marksmanship L2", "Marksmanship LX"}.isdisjoint(uattributes)):
+        umod -= 3
+    if (not ("Natural Born Warrior: A" in uattributes)):
+        if ("Martial Arts L1" in opattributes or "Martial Arts L3" in opattributes):
             umod -= 3
-        # There are different versions of surprise attack and shot for different marker states as future proofing for
-        #   multiple attackers on each side
-        if ({"Sixth Sense L1", "Sixth Sense L2"}.isdisjoint(u.obligs)):
-            if not("Multispectral Visor L3" in u.obligs):
-                if("Surprise Shot L2:Camo" in opattributes):
-                    umod -= 6
-                elif("Surprise Shot L1:camo" in opattributes):
-                    umod -= 3
-                elif("Surprise Attack:camo" in opattributes and not("Natural Born Warrior: A" in uattributes)):
-                    umod -= 6
-            if ({"Biometric Visor L1", "Biometric Visor L2"}.isdisjoint(u.obligs)):
-                if ("Surprise Shot L2:imp/echo" in opattributes):
-                    umod -= 6
-                elif ("Surprise Shot L1:imp/echo" in opattributes):
-                    umod -= 3
-                elif ("Surprise Attack:imp/echo" in opattributes and not("Natural Born Warrior: A" in uattributes)):
-                    umod -= 6
-            if ("Surprise Shot L2:decoy" in opattributes):
-                umod -= 6
-            elif ("Surprise Shot L1:decoy" in opattributes):
-                umod -= 3
-            elif ("Surprise Attack:decoy" in opattributes and not ("Natural Born Warrior: A" in uattributes)):
-                umod -= 6
-        if({"Multispectral Visor L1", "Multispectral Visor L2"}.isdisjoint(u.obligs)):
-            if ("Multispectral Visor L1" in u.obligs):
-                if("CH: Total Camouflage" in opattributes or "ODD: Optical Disruptor" in op.obligs):
-                    umod -= 3
-            else:
-                if ("CH: Total Camouflage" in opattributes or "ODD: Optical Disruptor" in op.obligs):
-                    umod -= 6
-                if ("CH: Mimetism" in op.obligs or "CH: Camouflage" in opattributes):
-                    umod -= 3
-        if("Full Auto L2" in opattributes):
+        elif ("Martial Arts L5" in opattributes):
+            umod -= 6
+        if not ({"Protheion L2", "Protheion L5"}.isdisjoint(opattributes)):
             umod -= 3
-        if("cover" in opattributes and {"Marksmanship L2", "Marksmanship LX"}.isdisjoint(uattributes)):
+        if not ({"Guard L1", "Guard L2", "Guard L3"}.isdisjoint(opattributes)):
             umod -= 3
-        if(not("Natural Born Warrior: A" in uattributes)):
-            if("Martial Arts L1" in opattributes or "Martial Arts L3" in opattributes):
-                umod -= 3
-            elif("Martial Arts L5" in opattributes):
-                umod -= 6
-            if not({"Protheion L2", "Protheion L5"}.isdisjoint(opattributes)):
-                umod -= 3
-            if not({"Guard L1", "Guard L2", "Guard L3"}.isdisjoint(opattributes)):
-                umod -= 3
-            if("I-Khol L1" in opattributes):
-                umod -= 3
-            elif("I-Khol L2" in opattributes):
-                umod -= 6
-            elif("I-Khol L3" in opattributes):
-                umod -= 9
-            if("Natural Born Warrior: B" in opattributes):
-                umod -= 3
-        # Range is stored as a tuple as shown ("range", value from range) - e.g ("range", -3)
-        # Other is just used as a way for users to do extra fine tuning
-        for att in uattributes:
-            if type(att) == tuple:
-                if att[0] == "range" or att[0] == "other":
-                    umod += att[1]
-        if("fireteam 5" in uattributes):
-            umod += 3
-        if("TinBot E (Spotter)" in u.obligs):
-            umod += 3
-        if("Marksmanship LX" in uattributes):
-            umod += 6
-        return max(-12, min(12, umod))
+        if ("I-Khol L1" in opattributes):
+            umod -= 3
+        elif ("I-Khol L2" in opattributes):
+            umod -= 6
+        elif ("I-Khol L3" in opattributes):
+            umod -= 9
+        if ("Natural Born Warrior: B" in opattributes):
+            umod -= 3
+    # Range is stored as a tuple as shown ("range", value from range) - e.g ("range", -3)
+    # Other is just used as a way for users to do extra fine tuning
+    for att in uattributes:
+        if type(att) == tuple:
+            if att[0] == "range" or att[0] == "other":
+                umod += att[1]
+    if ("fireteam 5" in uattributes):
+        umod += 3
+    if ("TinBot E (Spotter)" in u.obligs):
+        umod += 3
+    if ("Marksmanship LX" in uattributes):
+        umod += 6
+    return max(-12, min(12, umod))
 
 
-# skill is the literal name from the rules, e.g "bsattack", "dodge"
 # tags is a set of strings that contain information about the action, e.g a smoke grenade thrown
 #   in such a way as to not block LoS would have the "noncontest" tag
 #   - note: noncontested needs to be set by the action creator based on things like hacking program choice
