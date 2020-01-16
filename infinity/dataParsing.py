@@ -54,6 +54,10 @@ def populateUnitSpec(armyname, unitname, obligs, options):
 
 # TODO Fix this for all the funky no ammo weapons
 def getAmmoTypes(weaponname):
+    if(weaponname in {"Jammer", "Sepsitor", "Forward Observer"}):
+        return weaponname
+    elif(weaponname == "Sepsitor Plus"):
+        return "Sepsitor"
     with open("infinityStats/weapons.json", "r") as read_file:
         weapons = json.load(read_file)
         for weapon in weapons:
