@@ -188,6 +188,7 @@ def getBSMods(u, uattributes, op, opattributes):
     return max(-12, min(12, umod))
 
 
+# skill is the literal name from the rules, e.g "BS Attack", "Dodge"
 # tags is a set of strings that contain information about the action, e.g a smoke grenade thrown
 #   in such a way as to not block LoS would have the "noncontest" tag
 #   - note: noncontested needs to be set by the action creator based on things like hacking program choice
@@ -207,7 +208,7 @@ class Action:
         if "dodge" in tags: self.dodge = True
         else: self.dodge = False
         if "reset" in tags: self.reset = True
-        else: self.reset =  False
+        else: self.reset = False
 
     # Tells you if the action is an attack or a comms attack
     def isGenericAttack(self):
@@ -218,6 +219,7 @@ class Action:
 
 
 class Unit:
+
     def __init__(self, armyname, name, child):
         self.armyname = armyname.lower()[0:4]
         self.name = name

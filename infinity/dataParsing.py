@@ -52,6 +52,7 @@ def populateUnitSpec(armyname, unitname, obligs, options):
                                     obligs.add(spec)
 
 
+# TODO Fix this for all the funky no ammo weapons
 def getAmmoTypes(weaponname):
     with open("infinityStats/weapons.json", "r") as read_file:
         weapons = json.load(read_file)
