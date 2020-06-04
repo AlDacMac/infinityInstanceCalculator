@@ -29,6 +29,20 @@ def getUnitStat(armyname, unitname, stat):
         raise LookupError
 
 
+def getUnitStats(armyName, unitName):
+    statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "w"]
+    unitStats = dict({})
+    with open("infinityStats/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
+        units = json.load(read_file)
+        for profile in units:
+            if ("obsolete" in profile.keys()):
+                continue
+            elif (profile["name"] == unitName):
+                for stat in statNames:
+                    unitStats[stat] = profile[stat]
+        raise LookupError
+
+
 def populateUnitSpec(armyname, unitname, obligs, options):
     with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
