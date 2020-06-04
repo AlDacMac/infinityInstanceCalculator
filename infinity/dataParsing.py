@@ -34,12 +34,13 @@ def getUnitStats(armyName, unitName):
     unitStats = dict({})
     with open("infinityStats/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
-        for profile in units:
-            if ("obsolete" in profile.keys()):
+        for unit in units:
+            if ("obsolete" in unit.keys()):
                 continue
-            elif (profile["name"] == unitName):
+            elif (unit["name"] == unitName):
                 for stat in statNames:
-                    unitStats[stat] = profile[stat]
+                    unitStats[stat] = unit[stat]
+                return unitStats
         raise LookupError
 
 
