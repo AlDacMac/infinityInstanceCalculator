@@ -1,5 +1,5 @@
-from infinity.dataParsing import *
-from infinity.diceMaths import *
+from infinity import dataParsing
+from infinity import diceMaths
 from math import *
 
 armAmmo = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament", "Plasma", "T2"}
@@ -20,3 +20,31 @@ armEffectOnCrit = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament"
 
 phEffectOnCrit = {"ADH"}
 
+
+# TODO Implement cover by having a setting on the model performing the action stating if the TARGET has cover
+# A list of units, what action they are performing, and what their target it.
+class Instance:
+    def __init__(self):
+        # active and reactive are collections of orders, which themselves contain information about the unit performing
+        #   the order, what tools they're using, modifiers, targets etc.
+        self.active = dict({})
+        self.reactive = dict({})
+        # The trackers are used for creating unique IDs
+        self.activeTracker = 0
+        self.reactiveTracker = 0
+
+    def addOrder(self, unitId, player, stats, action, modifiers=None, target=None, tool1=None, tool2=None):
+        if modifiers is None:
+            modifiers = set({})
+        unitData = {
+            "stats": stats,
+            "action": action,
+            "modifiers": modifiers,
+            "target": target,
+            "tool1": tool1,
+            "tool2": tool2
+        }
+        if player == 1:
+            self.active[unitId] = unitData
+        else:
+            self.reactive[unitId] = unitData
