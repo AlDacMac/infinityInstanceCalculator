@@ -36,6 +36,9 @@ class Instance:
         self.activeTracker = 0
         self.reactiveTracker = 0
 
+    # TODO make the dictionaries work with burst splitting - a single unit Id should be able to target mutliple
+    #   perhaps a make target a dict from unitId to the burst dedicated to that unit
+    #   this also needs to work for template weapons, I reckon the same solution is viable
     def addOrder(self, unitId, player, stats, action, modifiers=None, target=None, tool1=None, tool2=None):
         if modifiers is None:
             modifiers = set({})
