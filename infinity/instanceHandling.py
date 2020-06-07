@@ -1,6 +1,7 @@
 from infinity import dataParsing
 from infinity import diceMaths
 from math import *
+from misc.misc import *
 
 armAmmo = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament", "Plasma", "T2"}
 
@@ -19,6 +20,8 @@ btsEffectOnCrit = {"Breaker", "DT", "E/M", "E/M2", "Flash", "Nanotech", "Stun", 
 armEffectOnCrit = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament", "Plasma", "T2"}
 
 phEffectOnCrit = {"ADH"}
+
+nonContest = {"nonContest", "Beserk"}
 
 
 # TODO Implement cover by having a setting on the model performing the action stating if the TARGET has cover
@@ -48,3 +51,9 @@ class Instance:
             self.active[unitId] = unitData
         else:
             self.reactive[unitId] = unitData
+
+
+# Contested takes two unitIds and their corresponding data dicts and determines if they contest each other.
+def contested(activeId, activeData, reactiveId, reactiveData):
+    if overlaps(activeData["modifiers"], nonContest) or overlaps(reactiveData["modifiers"], nonContest):
+        return False
