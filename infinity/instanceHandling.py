@@ -3,6 +3,7 @@ from infinity import diceMaths
 from math import *
 from misc.misc import *
 
+# proper capitalisation is used for real skills and equipment, camelCase is used for tags I've created
 armAmmo = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament", "Plasma", "T2"}
 
 btsAmmo = {"Breaker", "DT", "E/M", "E/M2", "Flash", "Nanotech", "Plasma", "Stun", "Viral", "Jammer", "Sepsitor",
