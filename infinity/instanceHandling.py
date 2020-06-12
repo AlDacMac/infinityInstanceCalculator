@@ -112,12 +112,17 @@ def contested(actingId, actingData, contestingId, contestingData):
     elif actingData['action'] in resets and contestingData['action'] in commsAttacks:
         if contestingData["target"] == actingId:
             return True
+    # TODO take acount of smoke special dodge being able to block multiple attakcs, have a list that initially includes
+    #   everyone but that people can be removed from
     elif actingData['action'] in smokeDodgeableAttacks and contestingData['action'] == "Smoke Dodge":
-        if actingData["target"] == contestingId and not overlaps(actingData["modifiers"], ignoresSmoke):
-            return True
+        # Smoke dodges will keep a list of all those who the smoke blocks in their targets field
+        if actingData["target"] == contestingId and actingId in contestingData["target"]:
+            if not overlaps(actingData["modifiers"], ignoresSmoke):
+                return True
     elif actingData['action'] == "Smoke Dodge" and contestingData['action'] in smokeDodgeableAttacks:
-        if contestingData["target"] == actingId and not overlaps(contestingData["modifiers"], ignoresSmoke):
-            return True
+        if contestingData["target"] == actingId and contestingId in actingData["target"]:
+            if not overlaps(contestingData["modifiers"], ignoresSmoke):
+                return True
 
 
 
