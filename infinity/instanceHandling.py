@@ -87,6 +87,36 @@ class Instance:
 
 
 # Contested takes two unitIds and their corresponding data dicts and determines if they contest each other.
-def contested(activeId, activeData, reactiveId, reactiveData):
-    if overlaps(activeData["modifiers"], nonContest) or overlaps(reactiveData["modifiers"], nonContest):
+# We assume that two actions either mutually contest or mutually don't, even if one action does not actualy require dice
+#   i.e direct template weapon
+# TODO Figure out if direct template weapons should be in nonContest
+#   we do need to invoke special logic if the opponent is dodging, so they probably shouldn't - we can add the 1 hit
+#   after hit calcs are made
+#       hell we could just treat DTWs as always rolling 0
+def contested(actingId, actingData, contestingId, contestingData):
+    if overlaps(actingData["modifiers"], nonContest) or overlaps(contestingData["modifiers"], nonContest):
         return False
+    elif actingData["action"] in genericAttacks and contestingData["action"] in genericAttacks:
+        if actingId == contestingData["target"] and contestingId == actingData["target"]:
+            return True
+    elif actingData['action'] in dodgeableAttacks and contestingData['action'] in dodges:
+        if actingData["target"] == contestingId:
+            return True
+    elif actingData['action'] in dodges and contestingData['action'] in dodgeableAttacks:
+        if contestingData["target"] == actingId:
+            return True
+    elif actingData['action'] in commsAttacks and contestingData['action'] in resets:
+        if actingData["target"] == contestingId:
+            return True
+    elif actingData['action'] in resets and contestingData['action'] in commsAttacks:
+        if contestingData["target"] == actingId:
+            return True
+    elif actingData['action'] in smokeDodgeableAttacks and contestingData['action'] == "Smoke Dodge":
+        if actingData["target"] == contestingId and not overlaps(actingData["modifiers"], ignoresSmoke):
+            return True
+    elif actingData['action'] == "Smoke Dodge" and contestingData['action'] in smokeDodgeableAttacks:
+        if contestingData["target"] == actingId and not overlaps(contestingData["modifiers"], ignoresSmoke):
+            return True
+
+
+
