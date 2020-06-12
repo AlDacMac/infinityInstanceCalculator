@@ -4,6 +4,10 @@ from math import *
 from misc.misc import *
 
 # proper capitalisation is used for real skills and equipment, camelCase is used for tags I've created
+
+# ----------------------------------------------------------------------------------------------------------------------
+# Tags used to denote categories of ammo
+# ----------------------------------------------------------------------------------------------------------------------
 armAmmo = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament", "Plasma", "T2"}
 
 btsAmmo = {"Breaker", "DT", "E/M", "E/M2", "Flash", "Nanotech", "Plasma", "Stun", "Viral", "Jammer", "Sepsitor",
@@ -22,8 +26,33 @@ armEffectOnCrit = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Monofilament"
 
 phEffectOnCrit = {"ADH"}
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Tags used to denote categories of action
+# ----------------------------------------------------------------------------------------------------------------------
+genericAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire",
+                  "CC Attack", "Hacking"}
+
+dodgeableAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire"}
+
+smokeDodgeableAttacks = {"BS Attack", "Marksmanship LX", "Triangulated Fire"}
+
+bsAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX"}
+
+dodges = {"Dodge", "Change Facing", "Engage"}
+
+commsAttacks = {"Hacking", "Jammer", "Sat-Lock"}
+
+resets = {"Reset"}
+
 nonContest = {"nonContest", "Beserk"}
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Tags used to denote categories of skill/equipment
+# ----------------------------------------------------------------------------------------------------------------------
+
+ignoresSmoke = ("MSV 2", "MSV 3")
+
+# ----------------------------------------------------------------------------------------------------------------------
 
 # TODO Implement cover by having a setting on the model performing the action stating if the TARGET has cover
 # A list of units, what action they are performing, and what their target it.
