@@ -73,14 +73,18 @@ class Instance:
     #   perhaps a make target a dict from unitId to the burst dedicated to that unit
     #   this also needs to work for template weapons, I reckon the same solution is viable
     #   I don't think I actually have to modify anything for this
-    def addOrder(self, unitId, player, stats, action, modifiers=None, target=None, tool1=None, tool2=None):
+    def addOrder(self, unitId, player, stats, action, losInfo=None, rangeInfo=None, coverInfo=None, modifiers=None, target=None, tool1=None, tool2=None):
         if modifiers is None:
             modifiers = set({})
         unitData = {
+            "unitId": unitId,           # This is kept here so that we can tell if two units are targting each other from just the data dict
             "stats": stats,
             "action": action,
-            "modifiers": modifiers,
-            "burstSplit": target,   # A dict from string (target IDs) to int (burst for that target)
+            "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
+            "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
+            "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer
+            "modifiers": modifiers,     # A set of skills and equipment, stored as strings
+            "burstSplit": target,       # A dict from string (target IDs) to int (burst for that target)
             "tool1": tool1,
             "tool2": tool2
         }
