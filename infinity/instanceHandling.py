@@ -52,7 +52,10 @@ nonContest = {"nonContest", "Beserk"}
 
 ignoresSmoke = ("MSV 2", "MSV 3")
 
+sixthSense = {"Sixth Sense L1", "Sixth Sense L2"}
+
 # ----------------------------------------------------------------------------------------------------------------------
+
 
 # TODO Implement cover by having a setting on the model performing the action stating if the TARGET has cover
 # A list of units, what action they are performing, and what their target it.
@@ -114,7 +117,9 @@ class Instance:
         elif actingData['action'] in smokeDodgeableAttacks and reactingData['action'] == "Smoke Dodge":
             # Smoke dodges will keep a list of all those who the smoke blocks in their burstSplit field
             if reactingId in actingData["burstSplit"] and actingId in reactingData["burstSplit"]:
-                if not overlaps(actingData["modifiers"], ignoresSmoke):
+                if actingData["tool1"] == "Eclipse Smoke Grenade":
+                    return True
+                elif not overlaps(actingData["modifiers"], ignoresSmoke):
                     return True
         elif actingData['action'] == "Smoke Dodge" and reactingData['action'] in smokeDodgeableAttacks:
             if actingId in reactingData["burstSplit"] and reactingId in actingData["burstSplit"]:
