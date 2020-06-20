@@ -248,7 +248,7 @@ def bsModsRecieved(shooterData, targetData):
     return totalMod
 
 
-# Returns true if the shooter is being attacked at by the target, and either has Xixth Sense L2 or is within 8 inches
+# Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
 def sixthSenseApplies(shooterData, targetData):
     targetModifiers = targetData["Modifiers"]

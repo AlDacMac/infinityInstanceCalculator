@@ -6,7 +6,7 @@ def ContestedRollHitAvg(p1burst, p1target, p2burst, p2target):
     p1bonus = max(0, p1target - 20)
     p1target = min(20, p1target)
     p2bonus = max(0, p2target - 20)
-    p2target = max(0, p2target)
+    p2target = min(20, p2target)
     singleDiceHitProb = 0
     singleDiceCritProb = 0.0
     for i in range(1, 21):
