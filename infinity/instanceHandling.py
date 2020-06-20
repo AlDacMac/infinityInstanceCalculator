@@ -80,16 +80,13 @@ class Instance:
             "unitId": unitId,           # This is kept here so that we can tell if two units are targting each other from just the data dict
             "stats": stats,
             "action": action,
-<<<<<<< HEAD
             "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
             "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
             "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
             "burstSplit": target,       # A dict from string (target IDs) to int (burst for that target)
-=======
             "modifiers": modifiers,
             "target": target,
->>>>>>> parent of 7fa4b24... contested changed to a method of the Instance class, now called contestedBetween
             "tool1": tool1,
             "tool2": tool2
         }
@@ -135,20 +132,6 @@ def contested(actingId, actingData, contestingId, contestingData):
         if contestingData["target"] == actingId and contestingId in actingData["target"]:
             if not overlaps(contestingData["modifiers"], ignoresSmoke):
                 return True
-<<<<<<< HEAD
-        # TODO take acount of smoke special dodge being able to block multiple attakcs, have a list that initially
-        #  includes everyone but that people can be removed from
-        elif actingData['action'] in smokeDodgeableAttacks and reactingData['action'] == "Smoke Dodge":
-            # Smoke dodges will keep a list of all those who the smoke blocks in their burstSplit field
-            if reactingId in actingData["burstSplit"] and actingId in reactingData["burstSplit"]:
-                if actingData["tool1"] == "Eclipse Smoke Grenade":
-                    return True
-                elif not overlaps(actingData["modifiers"], ignoresSmoke):
-                    return True
-        elif actingData['action'] == "Smoke Dodge" and reactingData['action'] in smokeDodgeableAttacks:
-            if actingId in reactingData["burstSplit"] and reactingId in actingData["burstSplit"]:
-                if not overlaps(reactingData["modifiers"], ignoresSmoke):
-                    return True
 
 
 # For the sake of consistency, the unit that the modifiers will apply to should always come first in the variables
@@ -185,8 +168,6 @@ def bsModsInflicted(targetData, shooterData):
         totalMod -= 3
     return totalMod
 
-=======
->>>>>>> parent of 7fa4b24... contested changed to a method of the Instance class, now called contestedBetween
 
 # TODO remember to do max/min when modsRecieved and modsInflicted are combined
 
