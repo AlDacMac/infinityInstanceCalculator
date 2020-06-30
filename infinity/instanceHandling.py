@@ -180,13 +180,13 @@ def bsModsRecieved(shooterData, targetData):
     # ------------------------------------------------------------------------------------------------------------------
     # Visibility mods, elifs are used as only the worst will apply
     # ------------------------------------------------------------------------------------------------------------------
-    if "noLof" in shooterData["losInfo"][targetData["unitId"]] and sixthSenseApplies(shooterData, targetData):
+    if "noLof" in shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData):
         totalMod -= 6
-    elif "eclipse" in (shooterData["losInfo"][targetData["unitId"]] and sixthSenseApplies(shooterData, targetData)):
+    elif "eclipse" in (shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData)):
         totalMod -= 6
     elif "Smoke" in shooterData["losInfo"][targetData["unitId"]] \
             and not overlaps(shooterModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}) \
-            and sixthSenseApplies(shooterData, targetData):
+            and not sixthSenseApplies(shooterData, targetData):
         totalMod -= 6
     elif "White Noise" in shooterData["losInfo"][targetData["unitId"]] \
             and overlaps(shooterModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}) \
@@ -250,6 +250,46 @@ def bsModsRecieved(shooterData, targetData):
     # ------------------------------------------------------------------------------------------------------------------
     return totalMod
 
+def dogeModsReceived(dodgerData, attackerData):
+    totalMod = 0
+    dodgerModifiers = dodgerData["modifiers"]
+    attackerModifiers = attackerData["modifiers"]
+    if dodgerData["stats"]["type"] == "TAG":
+        totalMod -= 3
+    elif dodgerData["stats"]["type"] == "REM" or "Motorcycle" in dodgerModifiers:
+        totalMod -= 3
+    # ------------------------------------------------------------------------------------------------------------------
+    # LOS Mods
+    # ------------------------------------------------------------------------------------------------------------------
+    if "noLof" in dodgerData["losInfo"][attackerData["targetId"]] and *attacker using a template* and not sixthSenseApplies(dodgerData, attackerData):
+        totalMod -= 3
+    elif "Poor Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
+        totalMod -= 6
+    elif "Low Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
+        totalMod -= 3
+    # ------------------------------------------------------------------------------------------------------------------
+    if "Hyper-Dynamics L3" in dodgerModifiers:
+        totalMod += 9
+    elif "Hyper-Dynamics L2" in dodgerModifiers:
+        totalMod += 6
+    elif "Hyper-Dynamics L1" in dodgerModifiers:
+        totalMod += 3
+    return totalMod
+
+def dodgeModsInflicted(attackerData, dodgerData):
+    totalMod = 0
+    dodgerModifiers = dodgerData["modifiers"]
+    attackerModifiers = attackerData["modifiers"]
+    # ------------------------------------------------------------------------------------------------------------------
+    if not ("Natural Born Warrior: A" in attackerModifiers):
+        if ("I-Khol L3" in dodgerModifiers):
+            totalMod -= 9
+        elif ("I-Khol L2" in dodgerModifiers):
+            totalMod -= 6
+        elif ("I-Khol L1" in dodgerModifiers):
+            totalMod -= 3
+    # ------------------------------------------------------------------------------------------------------------------
+    return totalMod
 
 # Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
