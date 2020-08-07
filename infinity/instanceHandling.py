@@ -84,13 +84,26 @@ class Instance:
             "action": action,
             "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
             "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
-            "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer
+            "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer - not that this does not mean that cover can be applied as marksmanship or template weapons ignore it
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
             "burstSplit": target,       # A dict from string (target IDs) to int (burst for that target)
             "modifiers": modifiers,
             "target": target,
             "tool1": tool1,
-            "tool2": tool2
+            "tool2": tool2,
+            "effects": {
+                "wounded": 0,
+                "unconscious": 0,
+                "immobilized2": 0,
+                "immobilized1": 0,
+                "dead": 0,
+                "isolated": 0,
+                "posessed": 0,
+                "stunned": 0,
+                "burnt": 0,
+                "sepsitorised": 0,
+                "targeted": 0
+            }
         }
         if player == 1:
             self.active[unitId] = unitData
@@ -302,6 +315,68 @@ def sixthSenseApplies(shooterData, targetData):
             (("Sixth Sense L2" in shooterData["modifiers"])
                 or ("Sixth Sense L1" in shooterData["modifiers"] and shooterData["rangeInfo"][targetData["unitId"]] <= 8)):
         return True
+
+def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
+    failedArmSaves = 0
+    failedBtsSaves = 0
+    failedPhSaves = 0
+    damage = calculateDamage(attackerData)
+    if ("Fatality L1" in attackerData["modifiers"]):
+        damage += 1
+    arm = targetData["stats"]["arm"]
+    bts = targetData["stats"]["bts"]
+    ph = targetData["stats"]["ph"]
+    if ("Monofilament" in ammo or "K1" in ammo):
+        arm = 0
+    elif ("AP" in ammo):
+        arm = ceil(arm / 2.0)
+    if ("Breaker" in ammo or "E/M" in ammo or "E/M2" in ammo):
+        bts = ceil(bts/2.0)
+    if ("ADH" in ammo):
+        ph = max(0, ph - 6)
+    if coverApplies(targetData, shooterData):
+        arm += 3
+        bts += 3
+    armfailchance = min(1, max(0, (damage - arm) / 20.0))
+    btsfailchance = min(1, max(0, (damage - bts) / 20.0))
+    phfailchance = min(1, max(0, (damage - ph) / 20.0))
+
+    # Failed saves from crits
+    if overlaps(armEffectOnCrit, ammo):
+        failedArmSaves += crits
+    if overlaps(btsEffectOnCrit, ammo):
+        failedBtsSaves += crits
+    # I assume regular bts saves from plasma only occur on crit if there's nothing causing normal bts crits
+    elif("Plasma" in ammo):
+        failedBtsSaves += crits * btsfailchance
+    if overlaps(phEffectOnCrit, ammo):
+        failedPhSaves += crits
+
+    # Regular arm saves
+    if("EXP" in ammo):
+        failedArmSaves += (hits * 3 * armfailchance) + (crits * 2 * armfailchance)
+    elif("DA" in ammo):
+        failedArmSaves += (hits * 2 * armfailchance) + (crits * armfailchance)
+    elif("Fire" in ammo):
+        failedArmSaves += recurringFireAvg(armfailchance, (crits + hits))
+    elif overlaps(armAmmo, ammo):
+        failedArmSaves += armfailchance * hits
+
+    # Regular bts saves
+    if overlaps({"DT", "EM/2", "Stun", "Viral"}, ammo):
+        failedBtsSaves += (hits * 2 * btsfailchance) + (crits * btsfailchance)
+    elif overlaps(btsAmmo, ammo):
+        failedBtsSaves += hits * btsfailchance
+
+    # Regular ph saves
+    if overlaps(phAmmo, ammo):
+        failedPhSaves += phfailchance * hits
+
+    return {"failedArmSaves": failedArmSaves, 
+            "failedBtsSaves": failedBtsSaves, 
+            "failedPhSaves": failesPhSaves}
+
+
 # TODO Implement a "coverApplies" method that can figure out with respect to stuff like blast
 #   We can figure out if the weapon is template or not from the json
 def coverApplies(shooterData, targetData):
