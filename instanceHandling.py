@@ -1,5 +1,4 @@
-from infinity import dataParsing
-from infinity import diceMaths
+from dataParsing import *
 from math import *
 from misc.misc import *
 
@@ -334,7 +333,7 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
         bts = ceil(bts/2.0)
     if ("ADH" in ammo):
         ph = max(0, ph - 6)
-    if coverApplies(targetData, shooterData):
+    if coverApplies(targetData, attackerData):
         arm += 3
         bts += 3
     armfailchance = min(1, max(0, (damage - arm) / 20.0))
@@ -374,14 +373,14 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
 
     return {"failedArmSaves": failedArmSaves, 
             "failedBtsSaves": failedBtsSaves, 
-            "failedPhSaves": failesPhSaves}
+            "failedPhSaves": failedPhSaves}
 
 
 # TODO Implement a "coverApplies" method that can figure out with respect to stuff like blast
 #   We can figure out if the weapon is template or not from the json
 def coverApplies(shooterData, targetData):
     if not(targetData["unitId"] in shooterData["coverInfo"] or
-            ("Nanoscreen" in targetData["modifiers"] and not("Burnt" in targetData[Modifiers]))):
+            ("Nanoscreen" in targetData["modifiers"] and not("Burnt" in targetData["modifiers"]))):
         return False
     elif overlaps({"Impetuous", "Extremely Impetuous"}, targetData["modifiers"]):
         return False
