@@ -1,4 +1,11 @@
 ##############
+# Dev Specific GitIgnore
+##############
+
+# Venv
+infinityVenv/
+
+##############
 # Default Python GitIgnore stuff
 ##############
 
