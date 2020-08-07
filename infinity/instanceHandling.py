@@ -36,7 +36,9 @@ dodgeableAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksm
 
 smokeDodgeableAttacks = {"BS Attack", "Marksmanship LX", "Triangulated Fire"}
 
-bsAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX"}
+bsAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire"}
+
+allowCover = {"BS Attack", "Speculative Fire"}
 
 dodges = {"Dodge", "Change Facing", "Engage"}
 
@@ -238,13 +240,13 @@ def bsModsRecieved(shooterData, targetData):
     # ------------------------------------------------------------------------------------------------------------------
     if ("Full Auto L2" in targetModifiers):
         totalMod -= 3
-    if "cover" in targetModifiers and not overlaps(shooterModifiers, {"Marksmanship L2", "Marksmanship LX"}):
+    if coverApplies(shooterData, targetData):
         totalMod -= 3
     if ("fireteam 5" in shooterModifiers):
         totalMod += 3
     if ("TinBot E (Spotter)" in shooterModifiers):
         totalMod += 3
-    if ("Marksmanship LX" in shooterModifiers):
+    if (shooterData["action"] == "Marksmanship LX"):
         totalMod += 6
     totalMod += shooterData["rangeInfo"][targetData["unitId"]]
     # ------------------------------------------------------------------------------------------------------------------
@@ -261,7 +263,7 @@ def dogeModsReceived(dodgerData, attackerData):
     # ------------------------------------------------------------------------------------------------------------------
     # LOS Mods
     # ------------------------------------------------------------------------------------------------------------------
-    if "noLof" in dodgerData["losInfo"][attackerData["targetId"]] and *attacker using a template* and not sixthSenseApplies(dodgerData, attackerData):
+    if "noLof" in dodgerData["losInfo"][attackerData["targetId"]] and not(attackerData["weapon"]["template"] == "No") and not sixthSenseApplies(dodgerData, attackerData):
         totalMod -= 3
     elif "Poor Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
         totalMod -= 6
@@ -300,3 +302,18 @@ def sixthSenseApplies(shooterData, targetData):
             (("Sixth Sense L2" in shooterData["modifiers"])
                 or ("Sixth Sense L1" in shooterData["modifiers"] and shooterData["rangeInfo"][targetData["unitId"]] <= 8)):
         return True
+# TODO Implement a "coverApplies" method that can figure out with respect to stuff like blast
+#   We can figure out if the weapon is template or not from the json
+def coverApplies(shooterData, targetData):
+    if not(targetData["unitId"] in shooterData["coverInfo"] or
+            ("Nanoscreen" in targetData["modifiers"] and not("Burnt" in targetData[Modifiers]))):
+        return False
+    elif overlaps({"Impetuous", "Extremely Impetuous"}, targetData["modifiers"]):
+        return False
+    elif not(shooterData["action"] in allowCover):
+        return False
+    elif ("Marksmanship L2" in shooterData["modifiers"]):
+        return False
+    elif not(shooterData["weapon"]["template"] == "No"):
+        return False
+    return True
