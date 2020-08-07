@@ -37,7 +37,3 @@ def ContestedRollCritAvg(p1Burst, p1Target, p1Bonus, p2Burst, p2Target, p2Bonus)
             singleDiceProb += probHitFromRoll
             print(probHitFromRoll)
     return p1Burst * singleDiceProb
-
-
-            
-
