@@ -2,6 +2,8 @@
 # Dev Specific GitIgnore
 ##############
 
+unit_data
+
 # Venv
 infinityVenv/
 
