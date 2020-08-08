@@ -8,7 +8,7 @@ optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1
 
 def getArmyUnits(armyname):
     unit_names = []
-    with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
+    with open("unit_data/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if("obsolete" in profile.keys()):
@@ -19,7 +19,7 @@ def getArmyUnits(armyname):
 
 
 def getUnitStat(army, unitName, stat):
-    with open("infinityStats/" + army.lower()[0:4] + "_units.json", "r") as read_file:
+    with open("unit_data/" + army.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if ("obsolete" in profile.keys()):
@@ -32,7 +32,7 @@ def getUnitStat(army, unitName, stat):
 def getUnitStats(armyName, unitName):
     statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "w"]
     unitStats = dict({})
-    with open("infinityStats/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
+    with open("unit_data/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for unit in units:
             if ("obsolete" in unit.keys()):
@@ -45,7 +45,7 @@ def getUnitStats(armyName, unitName):
 
 
 def populateUnitSpec(armyname, unitname, obligs, options):
-    with open("infinityStats/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
+    with open("unit_data/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for profile in units:
             if ("obsolete" in profile):
@@ -74,7 +74,7 @@ def getAmmoTypes(weaponname):
     elif(weaponname == "Sepsitor Plus"):
         return "Sepsitor"
     else:
-        with open("infinityStats/weapons.json", "r") as read_file:
+        with open("unit_data/weapons.json", "r") as read_file:
             weapons = json.load(read_file)
             for weapon in weapons:
                 if(weapon["name"] == weaponname):
@@ -83,7 +83,7 @@ def getAmmoTypes(weaponname):
 
 
 def getWeaponBurst(weaponname):
-    with open("infinityStats/weapons.json", "r") as read_file:
+    with open("unit_data/weapons.json", "r") as read_file:
         weapons = json.load(read_file)
         for weapon in weapons:
             if(weapon["name"] == weaponname):
@@ -92,7 +92,7 @@ def getWeaponBurst(weaponname):
 
 
 def getWeaponAttr(weaponname):
-    with open("infinityStats/weapons.json", "r") as read_file:
+    with open("unit_data/weapons.json", "r") as read_file:
         weapons = json.load(read_file)
         for weapon in weapons:
             if (weapon["name"] == weaponname):
@@ -104,7 +104,7 @@ def getWeaponAttr(weaponname):
 
 
 def getHackingBurst(programname):
-    with open("infinityStats/hacking.json", "r") as read_file:
+    with open("unit_data/hacking.json", "r") as read_file:
         hacking = json.load(read_file)
         for program in hacking["Hacking Programs"]:
             if program["Name"] == programname:
