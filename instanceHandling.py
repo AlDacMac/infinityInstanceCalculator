@@ -1,6 +1,6 @@
 from dataParsing import *
 from math import *
-from misc.misc import *
+from misc.misc import overlaps
 
 # proper capitalisation is used for real skills and equipment, camelCase is used for tags I've created
 
@@ -391,3 +391,20 @@ def coverApplies(shooterData, targetData):
     elif not(shooterData["weapon"]["template"] == "No"):
         return False
     return True
+
+# Returns the damage dealt by the unit's weapon, adjusted by modifiers
+def calculateDamage(unitData):
+    damage = unitData["tool1"]["damage"]
+    if("Fatality L1" in unitData["modifiers"] or "Fatality L2" in unitData["modifiers"]):
+        damage += 1
+    return damage
+
+
+def recurringFireAvg(failchance, nosaves):
+    failedsaves = 0
+    for i in range(20):
+        failed = failchance * nosaves
+        nosaves = failed
+        failedsaves += failed
+    return failedsaves
+
