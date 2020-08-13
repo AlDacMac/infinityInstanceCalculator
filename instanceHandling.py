@@ -327,6 +327,7 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
     ph = targetData["stats"]["ph"]
     if ("Monofilament" in ammo or "K1" in ammo):
         arm = 0
+        damage = 12
     elif ("AP" in ammo):
         arm = ceil(arm / 2.0)
     if ("Breaker" in ammo or "E/M" in ammo or "E/M2" in ammo):
