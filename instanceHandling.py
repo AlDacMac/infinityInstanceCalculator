@@ -376,6 +376,57 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
             "failedPhSaves": failedPhSaves}
 
 
+# TODO consider having these methods return the effects that they add, so that we can print for each
+#   unit the effects it causes.
+def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo):
+    effects = {
+                "wounded": 0,
+                "unconscious": 0,
+                "immobilised2": 0,
+                "immobilised1": 0,
+                "dead": 0,
+                "isolated": 0,
+                "posessed": 0,
+                "stunned": 0,
+                "burnt": 0,
+                "sepsitorised": 0,
+                "targeted": 0
+            }
+    # TODO add immunity - working on assumption that we just remove ammo types that you're immune to from the list
+    if overlaps(ammo, armWoundAmmo):
+        unitData["effects"]["wounded"] += failedArmSaves
+        effects["wounded"] += failedArmSaves
+    if "T2" in ammo:
+        unitData["effects"]["wounded"] += failedArmSaves
+        effects["wounded"] += failedArmSaves
+    # TODO consider how to handle shock sending people straight to deat - do we include it in the wounds section also?
+    if "Monofilament" in ammo or ("shock" in ammo and unitData["stats"]["wounds"] == 1):
+        unitData["effects"]["dead"] += failedArmSaves
+        effects["ead"] += failedArmSaves
+    if overlaps(ammo, btsWoundAmmo):
+        unitData["effects"]["wounded"] += failedArmSaves
+        effects["wounded"] += failedArmSaves
+    if overlaps({"E/M", "E/M2"}, ammo):
+        unitData["effects"]["isolated"] += failedBtsSaves
+        effects["isolated"] += failedBtsSaves
+        if overlaps(unitData["stats"]["type"], {"HI", "TAG", "REM"}):
+            unitData["effects"]["immobilised2"] += failedBtsSaves
+            effects["immobilised2"] += failedBtsSaves
+    if "Sepsitor" in ammo:
+        unitData["effects"]["sepsitorised"] += failedBtsSaves
+        effects["sepsitorised"] += failedBtsSaves
+    if overlaps(btsStunAmmo, ammo):
+        unitData["effects"]["stunned"] += failedBtsSaves
+        effects["stunned"] += failedBtsSaves
+    if "ADH" in ammo:
+        unitData["effects"]["immobilised2"] += 1
+        effects["immobilised2"] += 1
+    if "Viral" in ammo and unitData["stats"]["wounds"] == 1:
+        unitData["effects"]["dead"] += 1
+        effects["immobilised2"] += 1
+    return effects
+
+
 # TODO Implement a "coverApplies" method that can figure out with respect to stuff like blast
 #   We can figure out if the weapon is template or not from the json
 def coverApplies(shooterData, targetData):
