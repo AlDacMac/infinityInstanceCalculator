@@ -18,6 +18,10 @@ armWoundAmmo = {"N", "AP", "EXP", "Shock", "DA", "Fire", "K1", "Plasma", "T2"}
 
 btsWoundAmmo = {"Breaker", "DT", "Nanotech", "Viral", "Plasma", "Phermonic"}
 
+btsImm2Ammo = {"E/M", "E/M2"}
+
+btsStunAmmo = {"Stun", "Flash"}
+
 btsEffectOnCrit = {"Breaker", "DT", "E/M", "E/M2", "Flash", "Nanotech", "Stun", "Viral", "Jammer", "Sepsitor",
                    "Phermonic"}
 
@@ -58,7 +62,6 @@ sixthSense = {"Sixth Sense L1", "Sixth Sense L2"}
 # ----------------------------------------------------------------------------------------------------------------------
 
 
-# TODO Implement cover by having a setting on the model performing the action stating if the TARGET has cover
 # A list of units, what action they are performing, and what their target it.
 class Instance:
     def __init__(self):
@@ -70,10 +73,9 @@ class Instance:
         self.activeTracker = 0
         self.reactiveTracker = 0
 
-    # TODO make the dictionaries work with burst splitting - a single unit Id should be able to target mutliple
-    #   perhaps a make target a dict from unitId to the burst dedicated to that unit
-    #   this also needs to work for template weapons, I reckon the same solution is viable
-    #   I don't think I actually have to modify anything for this
+    # The dictionaries work with burst splitting - a single unit Id is  able to target mutliple
+    #   target is a dict from unitId to the burst dedicated to that unit
+    #   this also works for template weapons
     def addOrder(self, unitId, player, stats, action, losInfo=None, rangeInfo=None, coverInfo=None, modifiers=None, target=None, tool1=None, tool2=None):
         if modifiers is None:
             modifiers = set({})
@@ -93,8 +95,8 @@ class Instance:
             "effects": {
                 "wounded": 0,
                 "unconscious": 0,
-                "immobilized2": 0,
-                "immobilized1": 0,
+                "immobilised2": 0,
+                "immobilised1": 0,
                 "dead": 0,
                 "isolated": 0,
                 "posessed": 0,
@@ -136,7 +138,7 @@ def contested(actingId, actingData, contestingId, contestingData):
         if contestingData["target"] == actingId:
             return True
     # TODO take acount of smoke special dodge being able to block multiple attakcs, have a list that initially includes
-    #   everyone but that people can be removed from
+    #   everyone when asking the smoke dodger to specify targets but that people can be removed from
     elif actingData['action'] in smokeDodgeableAttacks and contestingData['action'] == "Smoke Dodge":
         # Smoke dodges will keep a list of all those who the smoke blocks in their targets field
         if actingData["target"] == contestingId and actingId in contestingData["target"]:
@@ -384,8 +386,7 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
             "failedPhSaves": failedPhSaves}
 
 
-# TODO consider having these methods return the effects that they add, so that we can print for each
-#   unit the effects it causes.
+# Adds the effects of failed saves to a unit with respect to the ammo used on it, returns the increase in average effects
 def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo):
     effects = {
                 "wounded": 0,
@@ -400,14 +401,13 @@ def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo
                 "sepsitorised": 0,
                 "targeted": 0
             }
-    # TODO add immunity - working on assumption that we just remove ammo types that you're immune to from the list
     if overlaps(ammo, armWoundAmmo):
         unitData["effects"]["wounded"] += failedArmSaves
         effects["wounded"] += failedArmSaves
     if "T2" in ammo:
         unitData["effects"]["wounded"] += failedArmSaves
         effects["wounded"] += failedArmSaves
-    # TODO consider how to handle shock sending people straight to deat - do we include it in the wounds section also?
+    # TODO consider how to handle shock sending people straight to dead - do we include it in the wounds section also?
     if "Monofilament" in ammo or ("shock" in ammo and unitData["stats"]["wounds"] == 1):
         unitData["effects"]["dead"] += failedArmSaves
         effects["ead"] += failedArmSaves
@@ -435,8 +435,7 @@ def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo
     return effects
 
 
-# TODO Implement a "coverApplies" method that can figure out with respect to stuff like blast
-#   We can figure out if the weapon is template or not from the json
+# Given a shooter and a target, returns true if the target has partial cover to the shooter, and false otherwise
 def coverApplies(shooterData, targetData):
     if not(targetData["unitId"] in shooterData["coverInfo"] or
             ("Nanoscreen" in targetData["modifiers"] and not("Burnt" in targetData["modifiers"]))):
@@ -454,11 +453,12 @@ def coverApplies(shooterData, targetData):
 # Returns the damage dealt by the unit's weapon, adjusted by modifiers
 def calculateDamage(unitData):
     damage = unitData["tool1"]["damage"]
-    if("Fatality L1" in unitData["modifiers"] or "Fatality L2" in unitData["modifiers"]):
+    if (("Fatality L1" in unitData["modifiers"]) or ("Fatality L2" in unitData["modifiers"])):
         damage += 1
     return damage
 
 
+# Returns the average number of failed saves in situations where failing a save requires another save to be made
 def recurringFireAvg(failchance, nosaves):
     failedsaves = 0
     for i in range(20):
@@ -469,9 +469,6 @@ def recurringFireAvg(failchance, nosaves):
 
 
 # Given a unit and a list of ammo, returns a new list modified to not include ammo the unit is immune to
-# TODO Find a way of applying immunity's ability to swap between arm and bts
-#  - we can do it automatically, or have the user select the option
-#   - for Total Immunity, manually selecting could be tedious
 def applyImmunity(unitData, ammo):
     newAmmo = ammo.copy()
     if "Total Immunity" in unitData["modifiers"]:
