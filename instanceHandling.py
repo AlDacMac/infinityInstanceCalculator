@@ -325,6 +325,13 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
     arm = targetData["stats"]["arm"]
     bts = targetData["stats"]["bts"]
     ph = targetData["stats"]["ph"]
+    # just because you make the roll with arm instead of bts, doesn't make it combo with arm rolls
+    #   - therefore if one stat (arm or bts), has an ammo type that you're immune to being sent at it, 
+    #   - you can simply replace that stat with the other if the other is higher
+    if ("Total Immunity" in targetData["modifiers"] or ("Bioimmunity" in targetData["modifiers"] and "Shock" in ammo)):
+        arm = max(arm, bts)
+    if ("Total Immunity" in targetData["modifiers"] or ("Bioimmunity" in targetData["modifiers"] and "Viral" in ammo)):
+        arm = max(arm, bts)
     if ("Monofilament" in ammo or "K1" in ammo):
         arm = 0
         damage = 12
@@ -459,4 +466,29 @@ def recurringFireAvg(failchance, nosaves):
         nosaves = failed
         failedsaves += failed
     return failedsaves
+
+
+# Given a unit and a list of ammo, returns a new list modified to not include ammo the unit is immune to
+# TODO Find a way of applying immunity's ability to swap between arm and bts
+#  - we can do it automatically, or have the user select the option
+#   - for Total Immunity, manually selecting could be tedious
+def applyImmunity(unitData, ammo):
+    newAmmo = ammo.copy()
+    if "Total Immunity" in unitData["modifiers"]:
+        newAmmo = {}
+    if "Bioimmunity" in unitData["modifiers"]:
+        newAmmo.discard("Shock")
+    if "Shock Immunity" in unitData["modifiers"]:
+        newAmmo.discard("Shock")
+        newAmmo.discard("Viral") 
+    # We must add normal ammo to newAmmo if the ammo set is capable of causing wounds, and 
+    #   newAmmo is not
+    if ((overlaps(ammo, btsWoundAmmo) and not overlaps(newAmmo, btsWoundAmmo)) or overlaps(ammo, armWoundAmmo)):
+        newAmmo.add("N")
+    # Sepsitor is not affected by total immunity, neither is ADH
+    if "Sepsitor" in ammo:
+        newAmmo.add("Sepsitor")
+    if "ADH" in ammo:
+        newAmmo.add("ADH")
+    return newAmmo
 
