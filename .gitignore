@@ -8,7 +8,7 @@ unit_data
 infinityVenv/
 
 #unit tests
-unitTests.py
+test_instanceHandling.py
 
 ##############
 # Default Python GitIgnore stuff
