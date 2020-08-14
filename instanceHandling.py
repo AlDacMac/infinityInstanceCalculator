@@ -151,8 +151,8 @@ def contested(actingData, contestingData):
 #   This calcualtion is done seperately from bsModsRecieved as otherwise we could not handle someone not getting mods
 #   from a model shooting, but not at them.
 def bsModsInflicted(targetData, shooterData):
-    targetModifiers = targetData["Modifiers"]
-    shooterModifiers = shooterData["Modifiers"]
+    targetModifiers = targetData["modifiers"]
+    shooterModifiers = shooterData["modifiers"]
     totalMod = 0   
     if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers):
         if not ("Multispectral Visor L3" in targetModifiers):
@@ -186,8 +186,8 @@ def bsModsInflicted(targetData, shooterData):
 # TODO implement triangulated fire
 def bsModsRecieved(shooterData, targetData):
     totalMod = 0
-    targetModifiers = targetData["Modifiers"]
-    shooterModifiers = shooterData["Modifiers"]
+    targetModifiers = targetData["modifiers"]
+    shooterModifiers = shooterData["modifiers"]
     # ------------------------------------------------------------------------------------------------------------------
     # Visibility mods, elifs are used as only the worst will apply
     # ------------------------------------------------------------------------------------------------------------------
@@ -305,8 +305,8 @@ def dodgeModsInflicted(attackerData, dodgerData):
 # Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
 def sixthSenseApplies(shooterData, targetData):
-    targetModifiers = targetData["Modifiers"]
-    shooterModifiers = shooterData["Modifiers"]
+    targetModifiers = targetData["modifiers"]
+    shooterModifiers = shooterData["modifiers"]
     if shooterData["unitId"] in targetData["burstSplit"] and \
             (("Sixth Sense L2" in shooterData["modifiers"])
                 or ("Sixth Sense L1" in shooterData["modifiers"] and shooterData["rangeInfo"][targetData["unitId"]] <= 8)):
