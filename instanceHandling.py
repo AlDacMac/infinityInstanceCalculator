@@ -67,8 +67,7 @@ class Instance:
     def __init__(self):
         # active and reactive are collections of orders, which themselves contain information about the unit performing
         #   the order, what tools they're using, modifiers, targets etc.
-        self.active = dict({})
-        self.reactive = dict({})
+        self.orders = dict({})
         # The trackers are used for creating unique IDs
         self.activeTracker = 0
         self.reactiveTracker = 0
@@ -76,9 +75,11 @@ class Instance:
     # The dictionaries work with burst splitting - a single unit Id is  able to target mutliple
     #   target is a dict from unitId to the burst dedicated to that unit
     #   this also works for template weapons
+
     def addOrder(self, unitId, player, stats, action, losInfo=dict({}), rangeInfo=dict({}), coverInfo=set({}), modifiers=set({}), target=dict({}), tool1=None, tool2=None):
         unitData = {
             "unitId": unitId,           # This is kept here so that we can tell if two units are targting each other from just the data dict
+            "player": player,           # 1 for active, 2 for reactive
             "stats": stats,
             "action": action,
             "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
@@ -103,10 +104,7 @@ class Instance:
                 "targeted": 0
             }
         }
-        if player == 1:
-            self.active[unitId] = unitData
-        else:
-            self.reactive[unitId] = unitData
+        self.orders[unitId] = unitData
 
 
 # Contested takes two unitIds and their corresponding data dicts and determines if they contest each other.
@@ -116,33 +114,33 @@ class Instance:
 #   we do need to invoke special logic if the opponent is dodging, so they probably shouldn't - we can add the 1 hit
 #   after hit calcs are made
 #       hell we could just treat DTWs as always rolling 0
-def contested(actingId, actingData, contestingId, contestingData):
+def contested(actingData, contestingData):
     if overlaps(actingData["modifiers"], nonContest) or overlaps(contestingData["modifiers"], nonContest):
         return False
     elif actingData["action"] in genericAttacks and contestingData["action"] in genericAttacks:
-        if actingId == contestingData["target"] and contestingId == actingData["target"]:
+        if actingData["unitId"] == contestingData["target"] and contestingData["unitId"] == actingData["target"]:
             return True
     elif actingData['action'] in dodgeableAttacks and contestingData['action'] in dodges:
-        if actingData["target"] == contestingId:
+        if actingData["target"] == contestingData["unitId"]:
             return True
     elif actingData['action'] in dodges and contestingData['action'] in dodgeableAttacks:
-        if contestingData["target"] == actingId:
+        if contestingData["target"] == actingData["unitId"]:
             return True
     elif actingData['action'] in commsAttacks and contestingData['action'] in resets:
-        if actingData["target"] == contestingId:
+        if actingData["target"] == contestingData["unitId"]:
             return True
     elif actingData['action'] in resets and contestingData['action'] in commsAttacks:
-        if contestingData["target"] == actingId:
+        if contestingData["target"] == actingData["unitId"]:
             return True
     # TODO take acount of smoke special dodge being able to block multiple attakcs, have a list that initially includes
     #   everyone when asking the smoke dodger to specify targets but that people can be removed from
     elif actingData['action'] in smokeDodgeableAttacks and contestingData['action'] == "Smoke Dodge":
         # Smoke dodges will keep a list of all those who the smoke blocks in their targets field
-        if actingData["target"] == contestingId and actingId in contestingData["target"]:
+        if actingData["target"] == contestingData["unitId"] and actingData["unitId"] in contestingData["target"]:
             if not overlaps(actingData["modifiers"], ignoresSmoke):
                 return True
     elif actingData['action'] == "Smoke Dodge" and contestingData['action'] in smokeDodgeableAttacks:
-        if contestingData["target"] == actingId and contestingId in actingData["target"]:
+        if contestingData["target"] == actingData["unitId"] and contestingData["unitId"] in actingData["target"]:
             if not overlaps(contestingData["modifiers"], ignoresSmoke):
                 return True
 
