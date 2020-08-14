@@ -76,9 +76,7 @@ class Instance:
     # The dictionaries work with burst splitting - a single unit Id is  able to target mutliple
     #   target is a dict from unitId to the burst dedicated to that unit
     #   this also works for template weapons
-    def addOrder(self, unitId, player, stats, action, losInfo=None, rangeInfo=None, coverInfo=None, modifiers=None, target=None, tool1=None, tool2=None):
-        if modifiers is None:
-            modifiers = set({})
+    def addOrder(self, unitId, player, stats, action, losInfo=dict({}), rangeInfo=dict({}), coverInfo=set({}), modifiers=set({}), target=dict({}), tool1=None, tool2=None):
         unitData = {
             "unitId": unitId,           # This is kept here so that we can tell if two units are targting each other from just the data dict
             "stats": stats,
@@ -88,7 +86,6 @@ class Instance:
             "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer - not that this does not mean that cover can be applied as marksmanship or template weapons ignore it
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
             "burstSplit": target,       # A dict from string (target IDs) to int (burst for that target)
-            "modifiers": modifiers,
             "target": target,
             "tool1": tool1,
             "tool2": tool2,
