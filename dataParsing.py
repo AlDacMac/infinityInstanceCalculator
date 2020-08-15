@@ -1,4 +1,5 @@
 import json
+import re
 
 
 optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1", "Sixth Sense L2", "Surprise Shot L1",
@@ -44,6 +45,45 @@ def getUnitStats(armyName, unitName):
         raise LookupError
 
 
+# To specify child x of unit y, input y: x for unitname (e.g Achilles: Spitfire)
+# To specify profile x of unit y, input x (y) for unitname (e.g Auxbot (Peacemaker))
+# TODO Implement some way of setting "default" profiles, for example not having to specify
+#   "Myrmidon: Assault Hacker" if you want to get the one with the hacking device
+def getUnitSpec(armyname, unitname):
+    spec = set({})
+    childname = None
+    profilename = None
+    if ": " in unitname:
+        [unitname, childname] = unitname.split(": ")
+    elif "(" in unitname:
+        [profilename, unitname, X] = re.split(r'\s\(|\)', unitname)    #X here is just a discarded ")"
+    with open("unit_data/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
+        units = json.load(read_file)
+        for unit in units:
+            if ("obsolete" in unit):
+                continue
+            elif unit["name"] == unitname:
+                spec = spec|set(unit["spec"])
+                if childname:
+                    for child in unit["childs"]:
+                        if child["name"] == childname:
+                            spec = spec|set(child["spec"])
+                if "profiles" in unit:
+                    for profile in unit["profiles"]:
+                        if profile["id"] == 1:
+                            if profilename == None:
+                                spec = spec|set(profile["spec"])
+                            else:
+                                continue
+                        elif profile["name"] == profilename:
+                            spec = spec|set(profile["spec"])
+                    
+    return spec
+
+
+
+
+# DEPRECATED
 def populateUnitSpec(armyname, unitname, obligs, options):
     with open("unit_data/" + armyname.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
