@@ -65,8 +65,9 @@ sixthSense = {"Sixth Sense L1", "Sixth Sense L2"}
 # A list of units, what action they are performing, and what their target it.
 class Instance:
     def __init__(self):
-        # active and reactive are collections of orders, which themselves contain information about the unit performing
-        #   the order, what tools they're using, modifiers, targets etc.
+        # All units, regardless of player, are stored in the orders dict
+        # TODO consider reformatting methods to take IDs instead of data dicts now that we only use
+        #   a single dict and it's easy to retrive stuff.
         self.orders = dict({})
         # The trackers are used for creating unique IDs
         self.activeTracker = 0
