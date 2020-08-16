@@ -104,6 +104,11 @@ class Instance:
                 "targeted": 0
             }
         }
+        for id in self.orders.keys():
+            self.orders[id]["losInfo"][unitId] = {}
+            self.orders[id]["rangeInfo"][unitId] = 0
+            unitData["losInfo"][id] = {}
+            unitData["rangeInfo"][id] = 0
         self.orders[unitId] = unitData
 
 
