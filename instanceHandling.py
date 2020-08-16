@@ -289,31 +289,34 @@ class Instance:
         # ------------------------------------------------------------------------------------------------------------------
         return totalMod
 
-def dogeModsReceived(dodgerData, attackerData):
-    totalMod = 0
-    dodgerModifiers = dodgerData["modifiers"]
-    attackerModifiers = attackerData["modifiers"]
-    if dodgerData["stats"]["type"] == "TAG":
-        totalMod -= 3
-    elif dodgerData["stats"]["type"] == "REM" or "Motorcycle" in dodgerModifiers:
-        totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    # LOS Mods
-    # ------------------------------------------------------------------------------------------------------------------
-    if "noLof" in dodgerData["losInfo"][attackerData["targetId"]] and not(attackerData["weapon"]["template"] == "No") and not sixthSenseApplies(dodgerData, attackerData):
-        totalMod -= 3
-    elif "Poor Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
-        totalMod -= 6
-    elif "Low Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
-        totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    if "Hyper-Dynamics L3" in dodgerModifiers:
-        totalMod += 9
-    elif "Hyper-Dynamics L2" in dodgerModifiers:
-        totalMod += 6
-    elif "Hyper-Dynamics L1" in dodgerModifiers:
-        totalMod += 3
-    return totalMod
+
+    def dogeModsReceived(self, dodgerId, attackerId):
+        totalMod = 0
+        dodgerData = self.orders[dodgerId]
+        attackerData = self.orders[attackerId]
+        dodgerModifiers = dodgerData["modifiers"]
+        attackerModifiers = attackerData["modifiers"]
+        if dodgerData["stats"]["type"] == "TAG":
+            totalMod -= 3
+        elif dodgerData["stats"]["type"] == "REM" or "Motorcycle" in dodgerModifiers:
+            totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # LOS Mods
+        # ------------------------------------------------------------------------------------------------------------------
+        if "noLof" in dodgerData["losInfo"][attackerData["unitId"]] and not(attackerData["weapon"]["template"] == "No") and not sixthSenseApplies(dodgerData, attackerData):
+            totalMod -= 3
+        elif "Poor Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
+            totalMod -= 6
+        elif "Low Visibility Zone" in dodgerData["losInfo"][attackerData["unitId"]]:
+            totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        if "Hyper-Dynamics L3" in dodgerModifiers:
+            totalMod += 9
+        elif "Hyper-Dynamics L2" in dodgerModifiers:
+            totalMod += 6
+        elif "Hyper-Dynamics L1" in dodgerModifiers:
+            totalMod += 3
+        return totalMod
 
 def dodgeModsInflicted(attackerData, dodgerData):
     totalMod = 0
