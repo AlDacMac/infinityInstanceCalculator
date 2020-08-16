@@ -169,39 +169,42 @@ class Instance:
             return False
 
 
-# For the sake of consistency, the unit that the modifiers will apply to should always come first in the variables
+    # For the sake of consistency, the unit that the modifiers will apply to should always come first in the variables
 
-# Calculates the net modifier that a model applies to an enemy by a bs attack against them.
-#   This calcualtion is done seperately from bsModsRecieved as otherwise we could not handle someone not getting mods
-#   from a model shooting, but not at them.
-def bsModsInflicted(targetData, shooterData):
-    targetModifiers = targetData["modifiers"]
-    shooterModifiers = shooterData["modifiers"]
-    totalMod = 0   
-    if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers):
-        if not ("Multispectral Visor L3" in targetModifiers):
-            if ("Surprise Shot L2:Camo" in shooterModifiers):
+    # TODO add proper checks when face to face is required
+    # Calculates the net modifier that a model applies to an enemy by a bs attack against them.
+    #   This calcualtion is done seperately from bsModsRecieved as otherwise we could not handle someone not getting mods
+    #   from a model shooting, but not at them.
+    def bsModsInflicted(self, targetId, shooterId):
+        targetData = self.orders[targetId]
+        shooterData = self.orders[shooterId]
+        targetModifiers = targetData["modifiers"]
+        shooterModifiers = shooterData["modifiers"]
+        totalMod = 0   
+        if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers):
+            if not ("Multispectral Visor L3" in targetModifiers):
+                if ("Surprise Shot L2:Camo" in shooterModifiers):
+                    totalMod -= 6
+                elif ("Surprise Shot L1:camo" in shooterModifiers):
+                    totalMod -= 3
+                elif ("Surprise Attack:camo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
+                    totalMod -= 6
+            if ({"Biometric Visor L1", "Biometric Visor L2"}.isdisjoint(targetModifiers)):
+                if ("Surprise Shot L2:imp/echo" in shooterModifiers):
+                    totalMod -= 6
+                elif ("Surprise Shot L1:imp/echo" in shooterModifiers):
+                    totalMod -= 3
+                elif ("Surprise Attack:imp/echo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
+                    totalMod -= 6
+            if ("Surprise Shot L2:decoy" in shooterModifiers):
                 totalMod -= 6
-            elif ("Surprise Shot L1:camo" in shooterModifiers):
+            elif ("Surprise Shot L1:decoy" in shooterModifiers):
                 totalMod -= 3
-            elif ("Surprise Attack:camo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
+            elif ("Surprise Attack:decoy" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
                 totalMod -= 6
-        if ({"Biometric Visor L1", "Biometric Visor L2"}.isdisjoint(targetModifiers)):
-            if ("Surprise Shot L2:imp/echo" in shooterModifiers):
-                totalMod -= 6
-            elif ("Surprise Shot L1:imp/echo" in shooterModifiers):
-                totalMod -= 3
-            elif ("Surprise Attack:imp/echo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
-                totalMod -= 6
-        if ("Surprise Shot L2:decoy" in shooterModifiers):
-            totalMod -= 6
-        elif ("Surprise Shot L1:decoy" in shooterModifiers):
+        if "Full Auto L2" in shooterModifiers:
             totalMod -= 3
-        elif ("Surprise Attack:decoy" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
-            totalMod -= 6
-    if "Full Auto L2" in shooterModifiers:
-        totalMod -= 3
-    return totalMod
+        return totalMod
 
 
 # TODO remember to do max/min when modsRecieved and modsInflicted are combined
