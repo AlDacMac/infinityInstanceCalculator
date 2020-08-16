@@ -101,7 +101,7 @@ def getUnitStat(army, unitName, stat):
 
 
 def getUnitStats(armyName, unitName):
-    statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "w"]
+    statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "w", "type"]
     unitStats = dict({})
     with open("unit_data/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
