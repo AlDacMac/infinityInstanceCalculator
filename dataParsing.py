@@ -5,7 +5,7 @@ import re
 optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1", "Sixth Sense L2", "Surprise Shot L1",
             "Surprise Shot L2", "Surprise Attack", "Marksmanship L1", "Marksmanship L2", "Poison", "Martial Arts L1"
             , "Martial Arts L2", "Martial Arts L3", "Martial Arts L4", "Martial Arts L5"}
-sepecialweapons = {
+specialweapons = {
     "Sepsitor":  {
         "name": "Sepsitor",
         "burst": "1",
@@ -154,7 +154,7 @@ def getUnitSpec(armyname, unitname):
 # Takes a weapon name, and returns the weapon data dictionary from unit_data/weapons.json
 def getWeapon(weaponname):
     if(weaponname in {"Jammer", "Sepsitor", "Sepsitor Plus", "Forward Observer"}):
-        return sepecialweapons["weaponname"]
+        return specialweapons[weaponname]
     else: 
         with open("unit_data/weapons.json", "r") as read_file:
             weapons = json.load(read_file)
