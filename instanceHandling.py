@@ -63,6 +63,7 @@ sixthSense = {"Sixth Sense L1", "Sixth Sense L2"}
 
 
 # A list of units, what action they are performing, and what their target it.
+# TODO consider reformatting all methods to be part of the instance class, now that they can simply take id
 class Instance:
     def __init__(self):
         # All units, regardless of player, are stored in the orders dict
