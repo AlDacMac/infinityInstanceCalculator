@@ -446,7 +446,7 @@ def coverApplies(shooterData, targetData):
         return False
     elif ("Marksmanship L2" in shooterData["modifiers"]):
         return False
-    elif not(shooterData["weapon"]["template"] == "No"):
+    elif not(shooterData["tool1"]["template"] == "No"):
         return False
     return True
 
