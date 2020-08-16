@@ -5,7 +5,77 @@ import re
 optional = {"Shock Immunity", "Immunity: POS", "Total Immunity", "Sixth Sense L1", "Sixth Sense L2", "Surprise Shot L1",
             "Surprise Shot L2", "Surprise Attack", "Marksmanship L1", "Marksmanship L2", "Poison", "Martial Arts L1"
             , "Martial Arts L2", "Martial Arts L3", "Martial Arts L4", "Martial Arts L5"}
-
+sepecialweapons = {
+    "Sepsitor":  {
+        "name": "Sepsitor",
+        "burst": "1",
+        "ammo": "Sepsitor",
+        "damage": "WIP",
+        "short_dist": "--",
+        "short_mod": "--",
+        "medium_dist": "--",
+        "medium_mod": "--",
+        "long_dist": "--",
+        "long_mod": "--",
+        "max_dist": "--",
+        "max_mod": "--",
+        "cc": "No",
+        "template": "Direct Template (Large Teardrop)",
+        "uses": "2",
+        "note": "Intuitive Attack"
+    },
+    "Sepsitor Plus": {
+        "name": "Sepsitor",
+        "burst": "1",
+        "ammo": "Sepsitor",
+        "damage": "WIP",
+        "short_dist": "--",
+        "short_mod": "--",
+        "medium_dist": "--",
+        "medium_mod": "--",
+        "long_dist": "--",
+        "long_mod": "--",
+        "max_dist": "--",
+        "max_mod": "--",
+        "cc": "No",
+        "template": "Direct Template (Large Teardrop)",
+        "note": "Intuitive Attack"
+    }, 
+    "Jammer": {
+        "name": "Jammer",
+        "burst": "1",
+        "ammo": "Jammer",
+        "damage": "13",
+        "short_dist": "--",
+        "short_mod": "--",
+        "medium_dist": "--",
+        "medium_mod": "--",
+        "long_dist": "--",
+        "long_mod": "--",
+        "max_dist": "--",
+        "max_mod": "--",
+        "cc": "No",
+        "template": "No",
+        "note": "Comms Attack, Intuitive Attack, No LoF, State: Isolated, Technical Weapon, Zone of Control"
+    },
+    "Forward Observer": {
+        "name": "Forward Observer",
+        "burst": "1",
+        "ammo": "Forward Observer",
+        "damage": "N/A",
+        "short_dist": "8",
+        "short_mod": "0",
+        "medium_dist": "24",
+        "medium_mod": "0",
+        "long_dist": "48",
+        "long_mod": "-3",
+        "max_dist": "96",
+        "max_mod": "-6",
+        "cc": "No",
+        "template": "No",
+        "note": "Non-Lethal, Non-Lootable, Technical Weapon"
+    }
+}
 
 def getArmyUnits(armyname):
     unit_names = []
@@ -81,6 +151,17 @@ def getUnitSpec(armyname, unitname):
     return spec
 
 
+# Takes a weapon name, and returns the weapon data dictionary from unit_data/weapons.json
+def getWeapon(weaponname):
+    if(weaponname in {"Jammer", "Sepsitor", "Sepsitor Plus", "Forward Observer"}):
+        return sepecialweapons["weaponname"]
+    else: 
+        with open("unit_data/weapons.json", "r") as read_file:
+            weapons = json.load(read_file)
+            for weapon in weapons:
+                if(weapon["name"] == weaponname):
+                    return weapon
+            raise LookupError
 
 
 # DEPRECATED
