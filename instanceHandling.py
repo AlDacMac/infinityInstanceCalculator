@@ -207,86 +207,87 @@ class Instance:
         return totalMod
 
 
-# TODO remember to do max/min when modsRecieved and modsInflicted are combined
-
-# TODO consider making calculation of LOS mods its own thing
-# TODO implement triangulated fire
-def bsModsRecieved(shooterData, targetData):
-    totalMod = 0
-    targetModifiers = targetData["modifiers"]
-    shooterModifiers = shooterData["modifiers"]
-    # ------------------------------------------------------------------------------------------------------------------
-    # Visibility mods, elifs are used as only the worst will apply
-    # ------------------------------------------------------------------------------------------------------------------
-    if "noLof" in shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData):
-        totalMod -= 6
-    elif "eclipse" in (shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData)):
-        totalMod -= 6
-    elif "Smoke" in shooterData["losInfo"][targetData["unitId"]] \
-            and not overlaps(shooterModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}) \
-            and not sixthSenseApplies(shooterData, targetData):
-        totalMod -= 6
-    elif "White Noise" in shooterData["losInfo"][targetData["unitId"]] \
-            and overlaps(shooterModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}) \
-            and sixthSenseApplies(shooterData, targetData):
-        totalMod -= 6
-    elif "Poor Visibility" in shooterData["losInfo"][targetData["unitId"]] \
-            and not overlaps(shooterModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}):
-        if ("Multispectral Visor L1" in shooterModifiers):
-            totalMod -= 3
-        else:
+    # TODO remember to do max/min when modsRecieved and modsInflicted are combined
+    # TODO consider making calculation of LOS mods its own thing
+    # TODO implement triangulated fire
+    def bsModsRecieved(self, shooterId, targetId):
+        totalMod = 0
+        shooterData = self.orders[shooterId]
+        targetData = self.orders[targetId]
+        shooterModifiers = shooterData["modifiers"]
+        targetModifiers = targetData["modifiers"]
+        # ------------------------------------------------------------------------------------------------------------------
+        # Visibility mods, elifs are used as only the worst will apply
+        # ------------------------------------------------------------------------------------------------------------------
+        if "noLof" in shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData):
             totalMod -= 6
-    elif "Low Visibility" in shooterData["losInfo"][targetData["unitId"]] \
-            and not overlaps(shooterModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}):
-        totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    # Camouflage mods
-    # ------------------------------------------------------------------------------------------------------------------
-    if not overlaps(targetModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}):
-        if "Multispectral Visor L1" in shooterModifiers:
-            if ("CH: Total Camouflage" in targetModifiers or "ODD: Optical Disruptor" in targetModifiers):
+        elif "eclipse" in (shooterData["losInfo"][targetData["unitId"]] and not sixthSenseApplies(shooterData, targetData)):
+            totalMod -= 6
+        elif "Smoke" in shooterData["losInfo"][targetData["unitId"]] \
+                and not overlaps(shooterModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}) \
+                and not sixthSenseApplies(shooterData, targetData):
+            totalMod -= 6
+        elif "White Noise" in shooterData["losInfo"][targetData["unitId"]] \
+                and overlaps(shooterModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}) \
+                and sixthSenseApplies(shooterData, targetData):
+            totalMod -= 6
+        elif "Poor Visibility" in shooterData["losInfo"][targetData["unitId"]] \
+                and not overlaps(shooterModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}):
+            if ("Multispectral Visor L1" in shooterModifiers):
                 totalMod -= 3
-        else:
-            if ("CH: Total Camouflage" in targetModifiers or "ODD: Optical Disruptor" in targetModifiers):
+            else:
                 totalMod -= 6
-            if ("CH: Mimetism" in targetModifiers or "CH: Camouflage" in targetModifiers):
+        elif "Low Visibility" in shooterData["losInfo"][targetData["unitId"]] \
+                and not overlaps(shooterModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}):
+            totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # Camouflage mods
+        # ------------------------------------------------------------------------------------------------------------------
+        if not overlaps(targetModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}):
+            if "Multispectral Visor L1" in shooterModifiers:
+                if ("CH: Total Camouflage" in targetModifiers or "ODD: Optical Disruptor" in targetModifiers):
+                    totalMod -= 3
+            else:
+                if ("CH: Total Camouflage" in targetModifiers or "ODD: Optical Disruptor" in targetModifiers):
+                    totalMod -= 6
+                if ("CH: Mimetism" in targetModifiers or "CH: Camouflage" in targetModifiers):
+                    totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # CC Mods
+        # ------------------------------------------------------------------------------------------------------------------
+        if (not ("Natural Born Warrior: A" in shooterModifiers)):   # TODO you might not actually be able to use NBW here
+            if ("Martial Arts L1" in targetModifiers or "Martial Arts L3" in targetModifiers):
                 totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    # CC Mods
-    # ------------------------------------------------------------------------------------------------------------------
-    if (not ("Natural Born Warrior: A" in shooterModifiers)):   # TODO you might not actually be able to use NBW here
-        if ("Martial Arts L1" in targetModifiers or "Martial Arts L3" in targetModifiers):
+            elif ("Martial Arts L5" in targetModifiers):
+                totalMod -= 6
+            if not ({"Protheion L2", "Protheion L5"}.isdisjoint(targetModifiers)):
+                totalMod -= 3
+            if not ({"Guard L1", "Guard L2", "Guard L3"}.isdisjoint(targetModifiers)):
+                totalMod -= 3
+            if ("I-Khol L1" in targetModifiers):
+                totalMod -= 3
+            elif ("I-Khol L2" in targetModifiers):
+                totalMod -= 6
+            elif ("I-Khol L3" in targetModifiers):
+                totalMod -= 9
+            if ("Natural Born Warrior: B" in targetModifiers):
+                totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # Other mods
+        # ------------------------------------------------------------------------------------------------------------------
+        if ("Full Auto L2" in targetModifiers):
             totalMod -= 3
-        elif ("Martial Arts L5" in targetModifiers):
-            totalMod -= 6
-        if not ({"Protheion L2", "Protheion L5"}.isdisjoint(targetModifiers)):
+        if coverApplies(shooterData, targetData):
             totalMod -= 3
-        if not ({"Guard L1", "Guard L2", "Guard L3"}.isdisjoint(targetModifiers)):
-            totalMod -= 3
-        if ("I-Khol L1" in targetModifiers):
-            totalMod -= 3
-        elif ("I-Khol L2" in targetModifiers):
-            totalMod -= 6
-        elif ("I-Khol L3" in targetModifiers):
-            totalMod -= 9
-        if ("Natural Born Warrior: B" in targetModifiers):
-            totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    # Other mods
-    # ------------------------------------------------------------------------------------------------------------------
-    if ("Full Auto L2" in targetModifiers):
-        totalMod -= 3
-    if coverApplies(shooterData, targetData):
-        totalMod -= 3
-    if ("fireteam 5" in shooterModifiers):
-        totalMod += 3
-    if ("TinBot E (Spotter)" in shooterModifiers):
-        totalMod += 3
-    if (shooterData["action"] == "Marksmanship LX"):
-        totalMod += 6
-    totalMod += shooterData["rangeInfo"][targetData["unitId"]]
-    # ------------------------------------------------------------------------------------------------------------------
-    return totalMod
+        if ("fireteam 5" in shooterModifiers):
+            totalMod += 3
+        if ("TinBot E (Spotter)" in shooterModifiers):
+            totalMod += 3
+        if (shooterData["action"] == "Marksmanship LX"):
+            totalMod += 6
+        totalMod += shooterData["rangeInfo"][targetData["unitId"]]
+        # ------------------------------------------------------------------------------------------------------------------
+        return totalMod
 
 def dogeModsReceived(dodgerData, attackerData):
     totalMod = 0
