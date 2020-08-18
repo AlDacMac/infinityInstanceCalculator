@@ -101,17 +101,36 @@ def getUnitStat(army, unitName, stat):
 
 
 def getUnitStats(armyName, unitName):
-    statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "w", "type"]
+    statNames = ["cc", "bs", "ph", "wip", "arm", "bts", "type"]
     unitStats = dict({})
+    childname = None
+    profilename = None
+    if ": " in unitName:
+        [unitName, childname] = unitName.split(": ")
+    elif "(" in unitName:
+        [profilename, unitName, X] = re.split(r'\s\(|\)', unitName)    #X here is just a discarded ")"
     with open("unit_data/" + armyName.lower()[0:4] + "_units.json", "r") as read_file:
         units = json.load(read_file)
         for unit in units:
             if ("obsolete" in unit.keys()):
                 continue
             elif (unit["name"] == unitName):
-                for stat in statNames:
-                    unitStats[stat] = unit[stat]
-                return unitStats
+                if "profiles" in unit:
+                    for profile in unit["profiles"]:
+                        if profile["id"] == 1:
+                            for stat in statNames:
+                                if stat in profile.keys():
+                                    unitStats[stat] = profile[stat]
+                            if profilename == None:
+                                return unitStats
+                        elif profile["name"] == profilename:
+                            for stat in statNames:
+                                if stat in profile.keys():
+                                    unitStats[stat] = profile[stat]
+                else:
+                    for stat in statNames:
+                        unitStats[stat] = unit[stat]
+                    return unitStats
         raise LookupError
 
 
