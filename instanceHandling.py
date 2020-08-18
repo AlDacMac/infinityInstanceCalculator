@@ -290,7 +290,7 @@ class Instance:
         return totalMod
 
 
-    def dogeModsReceived(self, dodgerId, attackerId):
+    def dodgeModsRecieved(self, dodgerId, attackerId):
         totalMod = 0
         dodgerData = self.orders[dodgerId]
         attackerData = self.orders[attackerId]
@@ -318,20 +318,24 @@ class Instance:
             totalMod += 3
         return totalMod
 
-def dodgeModsInflicted(attackerData, dodgerData):
-    totalMod = 0
-    dodgerModifiers = dodgerData["modifiers"]
-    attackerModifiers = attackerData["modifiers"]
-    # ------------------------------------------------------------------------------------------------------------------
-    if not ("Natural Born Warrior: A" in attackerModifiers):
-        if ("I-Khol L3" in dodgerModifiers):
-            totalMod -= 9
-        elif ("I-Khol L2" in dodgerModifiers):
-            totalMod -= 6
-        elif ("I-Khol L1" in dodgerModifiers):
-            totalMod -= 3
-    # ------------------------------------------------------------------------------------------------------------------
-    return totalMod
+
+    def dodgeModsInflicted(self, attackerId, dodgerId):
+        totalMod = 0
+        attackerData = self.orders[attackerId]
+        dodgerData = self.orders[dodgerId]
+        dodgerModifiers = dodgerData["modifiers"]
+        print(dodgerModifiers)
+        attackerModifiers = attackerData["modifiers"]
+        # ------------------------------------------------------------------------------------------------------------------
+        if not ("Natural Born Warrior: A" in attackerModifiers):
+            if ("I-Kohl L3" in dodgerModifiers):
+                totalMod -= 9
+            elif ("I-Kohl L2" in dodgerModifiers):
+                totalMod -= 6
+            elif ("I-Kohl L1" in dodgerModifiers):
+                totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        return totalMod
 
 # Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
