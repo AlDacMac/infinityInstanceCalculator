@@ -122,15 +122,19 @@ def getUnitStats(armyName, unitName):
                                 if stat in profile.keys():
                                     unitStats[stat] = profile[stat]
                             if profilename == None:
-                                return unitStats
+                                break
                         elif profile["name"] == profilename:
                             for stat in statNames:
                                 if stat in profile.keys():
                                     unitStats[stat] = profile[stat]
+                            break
                 else:
                     for stat in statNames:
                         unitStats[stat] = unit[stat]
                     return unitStats
+                for stat in ["cc", "bs", "ph", "wip", "arm", "bts"]:
+                    unitStats[stat] = int(unitStats[stat])
+                return unitStats
         raise LookupError
 
 
