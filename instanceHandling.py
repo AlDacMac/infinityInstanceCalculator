@@ -35,7 +35,7 @@ phEffectOnCrit = {"ADH"}
 genericAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire",
                   "CC Attack", "Hacking"}
 
-dodgeableAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire"}
+dodgeableAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire", "CC Attack"}
 
 smokeDodgeableAttacks = {"BS Attack", "Marksmanship LX", "Triangulated Fire"}
 
