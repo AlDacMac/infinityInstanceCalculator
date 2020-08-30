@@ -113,6 +113,20 @@ class Instance:
             unitData["rangeInfo"][id] = 0
         self.orders[unitId] = unitData
 
+    
+
+
+    def calculateStat(self, actingId):
+        actingData = self.orders[actingId]
+        if actingData["action"] in bsAttacks:
+            if "attr" in actingData["tool1"]:
+                return actingData["tool1"]["attr"].lower()
+            else:
+                return "bs"
+        elif actingData["action"] in dodges:
+            return "ph"
+        elif actingData["action"] == "CC Attack":
+            return "phs"
 
     # Contested takes two unitIds and their corresponding data dicts and determines if they contest each other.
     # We assume that two actions either mutually contest or mutually don't, even if one action does not actualy require dice
