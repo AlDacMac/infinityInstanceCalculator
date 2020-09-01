@@ -409,8 +409,6 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
     failedBtsSaves = 0
     failedPhSaves = 0
     damage = calculateDamage(attackerData)
-    if ("Fatality L1" in attackerData["modifiers"]):
-        damage += 1
     arm = targetData["stats"]["arm"]
     bts = targetData["stats"]["bts"]
     ph = targetData["stats"]["ph"]
@@ -539,7 +537,7 @@ def coverApplies(shooterData, targetData):
 
 # Returns the damage dealt by the unit's weapon, adjusted by modifiers
 def calculateDamage(unitData):
-    damage = unitData["tool1"]["damage"]
+    damage = int(unitData["tool1"]["damage"])
     if (("Fatality L1" in unitData["modifiers"]) or ("Fatality L2" in unitData["modifiers"])):
         damage += 1
     return damage
