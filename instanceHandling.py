@@ -264,8 +264,6 @@ class Instance:
         # ------------------------------------------------------------------------------------------------------------------
         # Other mods
         # ------------------------------------------------------------------------------------------------------------------
-        if ("Full Auto L2" in targetModifiers):
-            totalMod -= 3
         if coverApplies(shooterData, targetData):
             totalMod -= 3
         if ("fireteam 5" in shooterModifiers):
