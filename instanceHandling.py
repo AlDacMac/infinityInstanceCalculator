@@ -42,6 +42,8 @@ smokeDodgeableAttacks = {"BS Attack", "Marksmanship LX", "Triangulated Fire"}
 
 bsAttacks = {"BS Attack", "Intuitive Attack", "Speculative Fire", "Marksmanship LX", "Triangulated Fire"}
 
+ccAttacks = {"CC Attack", "Assault"}
+
 allowCover = {"BS Attack", "Speculative Fire"}
 
 dodges = {"Dodge", "Change Facing", "Engage"}
@@ -352,7 +354,7 @@ class Instance:
                 totalMod =+ 3
             if "Berserk" in attackerModifiers:
                 totalMod += 6
-        if "Assault" in attackerModifiers:
+        if attackerData["action"] == "Assault":
             totalMod -= 3
         return totalMod
 
