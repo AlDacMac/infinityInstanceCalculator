@@ -394,14 +394,14 @@ class Instance:
             elif ("Surprise Attack:decoy" in attackerModifiers):
                 totalMod -= 6
 
-# Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
+# Returns true if the attacker is in turn being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
-def sixthSenseApplies(shooterData, targetData):
+def sixthSenseApplies(attackerData, targetData):
     targetModifiers = targetData["modifiers"]
-    shooterModifiers = shooterData["modifiers"]
-    if shooterData["unitId"] in targetData["burstSplit"] and \
-            (("Sixth Sense L2" in shooterData["modifiers"])
-                or ("Sixth Sense L1" in shooterData["modifiers"] and shooterData["rangeInfo"][targetData["unitId"]] <= 8)):
+    attackerModifiers = attackerData["modifiers"]
+    if attackerData["unitId"] in targetData["burstSplit"] and \
+            (("Sixth Sense L2" in attackerModifiers)
+                or ("Sixth Sense L1" in attackerModifiers and attackerData["rangeInfo"][targetData["unitId"]] <= 8)):
         return True
 
 def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
