@@ -1,6 +1,7 @@
 from dataParsing import *
 from math import *
 from misc.misc import overlaps
+import re
 
 # proper capitalisation is used for real skills and equipment, camelCase is used for tags I've created
 
@@ -201,21 +202,15 @@ class Instance:
                     totalMod -= 6
                 elif ("Surprise Shot L1:camo" in shooterModifiers):
                     totalMod -= 3
-                elif ("Surprise Attack:camo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
-                    totalMod -= 6
             if ({"Biometric Visor L1", "Biometric Visor L2"}.isdisjoint(targetModifiers)):
                 if ("Surprise Shot L2:imp/echo" in shooterModifiers):
                     totalMod -= 6
                 elif ("Surprise Shot L1:imp/echo" in shooterModifiers):
                     totalMod -= 3
-                elif ("Surprise Attack:imp/echo" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
-                    totalMod -= 6
             if ("Surprise Shot L2:decoy" in shooterModifiers):
                 totalMod -= 6
             elif ("Surprise Shot L1:decoy" in shooterModifiers):
                 totalMod -= 3
-            elif ("Surprise Attack:decoy" in shooterModifiers and not ("Natural Born Warrior: A" in shooterModifiers)):
-                totalMod -= 6
         if "Full Auto L2" in shooterModifiers:
             totalMod -= 3
         return totalMod
@@ -266,26 +261,6 @@ class Instance:
                     totalMod -= 6
                 if ("CH: Mimetism" in targetModifiers or "CH: Camouflage" in targetModifiers):
                     totalMod -= 3
-        # ------------------------------------------------------------------------------------------------------------------
-        # CC Mods
-        # ------------------------------------------------------------------------------------------------------------------
-        if (not ("Natural Born Warrior: A" in shooterModifiers)):   # TODO you might not actually be able to use NBW here
-            if ("Martial Arts L1" in targetModifiers or "Martial Arts L3" in targetModifiers):
-                totalMod -= 3
-            elif ("Martial Arts L5" in targetModifiers):
-                totalMod -= 6
-            if not ({"Protheion L2", "Protheion L5"}.isdisjoint(targetModifiers)):
-                totalMod -= 3
-            if not ({"Guard L1", "Guard L2", "Guard L3"}.isdisjoint(targetModifiers)):
-                totalMod -= 3
-            if ("I-Khol L1" in targetModifiers):
-                totalMod -= 3
-            elif ("I-Khol L2" in targetModifiers):
-                totalMod -= 6
-            elif ("I-Khol L3" in targetModifiers):
-                totalMod -= 9
-            if ("Natural Born Warrior: B" in targetModifiers):
-                totalMod -= 3
         # ------------------------------------------------------------------------------------------------------------------
         # Other mods
         # ------------------------------------------------------------------------------------------------------------------
@@ -350,6 +325,75 @@ class Instance:
                 totalMod -= 3
         # ------------------------------------------------------------------------------------------------------------------
         return totalMod
+
+    
+    def ccModsRecieved(self, attackerId, targetId):
+        totalMod = 0
+        attackerData = self.orders[attackerId]
+        attackerModifiers = attackerData["modifiers"]
+        targetData = self.orders[targetId]
+        targetModifiers = targetData["modifiers"]
+        # Weapon specific modifiers (i.e D-Charges)
+        if "note" in attackerData["tool1"]:
+            modRegex = re.compile(r'CC\((?P<mod>-?..?)\)')      #Searches for a CC mod note, and seperates the mod into a group
+            m = modRegex.match(attackerData["tool1"]["note"])
+            if m:
+                totalMod += int(m.group("mod"))
+        # ------------------------------------------------------------------------------------------------------------------
+        # CC Special Skills
+        # ------------------------------------------------------------------------------------------------------------------
+        if not ("Natural Born Warrior: A" in targetModifiers): 
+            if "Martial Arts L3" in attackerModifiers:
+                totalMod += 3
+            if overlaps({"Protheion L1", "Protheion L5"}, attackerModifiers):
+                totalMod += 3
+            if overlaps({"Guard L2", "Guard L3"}, attackerModifiers):
+                totalMod += 3
+            if "Natural Born Warrior: B" in attackerModifiers:
+                totalMod =+ 3
+            if "Berserk" in attackerModifiers:
+                totalMod += 6
+        if "Assault" in attackerModifiers:
+            totalMod -= 3
+        return totalMod
+
+
+    def ccModsInflicted(self, targetId, attackerId):
+        totalMod = 0
+        targetData = self.orders[targetId]
+        targetModifiers = targetData["modifiers"]
+        attackerData = self.orders[attackerId]
+        attackerModifiers = attackerData["modifiers"]
+        # ------------------------------------------------------------------------------------------------------------------
+        # CC Special Skills
+        # ------------------------------------------------------------------------------------------------------------------
+        if (not ("Natural Born Warrior: A" in targetModifiers)): 
+            if ("Martial Arts L5" in attackerModifiers):
+                totalMod -= 6
+            elif overlaps({"Martial Arts L1", "Martial Arts L3"}, attackerModifiers):
+                totalMod -= 3
+            if overlaps({"Protheion L2", "Protheion L5"}, attackerModifiers):
+                totalMod -= 3
+            if overlaps({"Guard L1", "Guard L2", "Guard L3"}, attackerModifiers):
+                totalMod -= 3
+            if ("I-Khol L9" in attackerModifiers):
+                totalMod -= 9
+            elif ("I-Khol L2" in attackerModifiers):
+                totalMod -= 6
+            elif ("I-Khol L1" in attackerModifiers):
+                totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # Surprise attack
+        # ------------------------------------------------------------------------------------------------------------------
+        if not(sixthSenseApplies(targetData, attackerData) or ("Natural Born Warrior: A" in targetModifiers)):
+            if ("Surprise Attack:camo" in attackerModifiers):
+                if not ("Multispectral Visor L3" in targetModifiers):
+                    totalMod -= 6
+            elif ("Surprise Attack:imp/echo" in attackerModifiers):
+                if overlaps({"Biometric Visor L1", "Biometric Visor L2"}, targetModifiers):
+                    totalMod -= 6
+            elif ("Surprise Attack:decoy" in attackerModifiers):
+                totalMod -= 6
 
 # Returns true if the shooter is being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
