@@ -186,6 +186,25 @@ class Instance:
             return False
 
 
+    def calcContestedModsRecieved(self, actingId, contestingId):
+        action = self.orders[actingId]["action"]
+        if action in bsAttacks:
+            return self.bsModsRecieved(actingId, contestingId)
+        elif action in dodges:
+            return self.dodgeModsRecieved(actingId, contestingId)
+        elif action in ccAttacks:
+            return self.ccModsInflicted(actingId, contestingId)
+
+
+    def calcContestedModsInflicted(self, contestingId, actingId):
+        action = self.orders[contestingId]["action"]
+        if action in bsAttacks:
+            return self.bsModsRecieved(actingId, contestingId)
+        elif action in dodges:
+            return self.dodgeModsInflicted(contestingId, actingId)
+        elif action in ccAttacks:
+            return self.ccModsInflicted(actingId, contestingId)
+
     # For the sake of consistency, the unit that the modifiers will apply to should always come first in the variables
 
     # TODO add proper checks when face to face is required
