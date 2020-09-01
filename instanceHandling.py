@@ -186,7 +186,7 @@ class Instance:
             return False
 
 
-    def calcContestedModsRecieved(self, actingId, contestingId):
+    def calcModsRecieved(self, actingId, contestingId):
         action = self.orders[actingId]["action"]
         if action in bsAttacks:
             return self.bsModsRecieved(actingId, contestingId)
@@ -196,7 +196,7 @@ class Instance:
             return self.ccModsInflicted(actingId, contestingId)
 
 
-    def calcContestedModsInflicted(self, contestingId, actingId):
+    def calcModsInflicted(self, contestingId, actingId):
         action = self.orders[contestingId]["action"]
         if action in bsAttacks:
             return self.bsModsRecieved(actingId, contestingId)
@@ -217,7 +217,7 @@ class Instance:
         targetModifiers = targetData["modifiers"]
         shooterModifiers = shooterData["modifiers"]
         totalMod = 0   
-        if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers):
+        if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers) and self.contested(targetId, shooterId):
             if not ("Multispectral Visor L3" in targetModifiers):
                 if ("Surprise Shot L2:Camo" in shooterModifiers):
                     totalMod -= 6
@@ -232,7 +232,7 @@ class Instance:
                 totalMod -= 6
             elif ("Surprise Shot L1:decoy" in shooterModifiers):
                 totalMod -= 3
-        if "Full Auto L2" in shooterModifiers:
+        if "Full Auto L2" in shooterModifiers and self.contested(targetId, shooterId):
             totalMod -= 3
         return totalMod
 
@@ -387,7 +387,7 @@ class Instance:
         # ------------------------------------------------------------------------------------------------------------------
         # CC Special Skills
         # ------------------------------------------------------------------------------------------------------------------
-        if (not ("Natural Born Warrior: A" in targetModifiers)): 
+        if not ("Natural Born Warrior: A" in targetModifiers) and self.contested(targetId, attackerId): 
             if ("Martial Arts L5" in attackerModifiers):
                 totalMod -= 6
             elif overlaps({"Martial Arts L1", "Martial Arts L3"}, attackerModifiers):
