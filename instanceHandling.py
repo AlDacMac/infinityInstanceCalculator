@@ -311,8 +311,9 @@ class Instance:
         attackerData = self.orders[attackerId]
         dodgerData = self.orders[dodgerId]
         dodgerModifiers = dodgerData["modifiers"]
-        print(dodgerModifiers)
         attackerModifiers = attackerData["modifiers"]
+        # ------------------------------------------------------------------------------------------------------------------
+        # Mods from cc special skills
         # ------------------------------------------------------------------------------------------------------------------
         if not ("Natural Born Warrior: A" in attackerModifiers):
             if ("I-Kohl L3" in dodgerModifiers):
