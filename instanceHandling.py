@@ -555,9 +555,9 @@ def recurringFireAvg(failchance, nosaves):
 
 # Given a unit and a list of ammo, returns a new list modified to not include ammo the unit is immune to
 def applyImmunity(unitData, ammo):
-    newAmmo = ammo.copy()
+    newAmmo = set(ammo.copy())
     if "Total Immunity" in unitData["modifiers"]:
-        newAmmo = {}
+        newAmmo = set({})
     if "Bioimmunity" in unitData["modifiers"]:
         newAmmo.discard("Shock")
     if "Shock Immunity" in unitData["modifiers"]:
