@@ -131,7 +131,6 @@ def getUnitStats(armyName, unitName):
                 else:
                     for stat in statNames:
                         unitStats[stat] = unit[stat]
-                    return unitStats
                 for stat in ["cc", "bs", "ph", "wip", "arm", "bts"]:
                     unitStats[stat] = int(unitStats[stat])
                 return unitStats
