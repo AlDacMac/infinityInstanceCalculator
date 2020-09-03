@@ -81,7 +81,7 @@ class Instance:
     #   target is a dict from unitId to the burst dedicated to that unit
     #   this also works for template weapons
 
-    def addOrder(self, unitId, player, stats, action, losInfo=dict({}), rangeInfo=dict({}), coverInfo=set({}), modifiers=set({}), target=dict({}), tool1=None, tool2=None):
+    def addOrder(self, unitId, player, stats, action, losInfo=dict({}), rangeInfo=dict({}), coverInfo=set({}), modifiers=set({}), burstSplit=dict({}), tool1=None, tool2=None):
         unitData = {
             "unitId": unitId,           # This is kept here so that we can tell if two units are targting each other from just the data dict
             "player": player,           # 1 for active, 2 for reactive
@@ -91,8 +91,7 @@ class Instance:
             "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
             "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer - not that this does not mean that cover can be applied as marksmanship or template weapons ignore it
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
-            "burstSplit": target,       # A dict from string (target IDs) to int (burst for that target)
-            "target": target,
+            "burstSplit": burstSplit,       # A dict from string (target IDs) to int (burst for that target)
             "tool1": tool1,
             "tool2": tool2,
             "effects": {
@@ -145,40 +144,40 @@ class Instance:
             return False
         elif (
             actingData["action"] in genericAttacks and contestingData["action"] in genericAttacks
-            and actingData["unitId"] == contestingData["target"] and contestingData["unitId"] == actingData["target"]
+            and actingData["unitId"] in contestingData["burstSplit"] and contestingData["unitId"] in actingData["burstSplit"]
             ):
                 return True
         elif (
             actingData['action'] in dodgeableAttacks and contestingData['action'] in dodges
-            and actingData["target"] == contestingData["unitId"]
+            and contestingData["unitId"] in actingData["burstSplit"]
             ):
                 return True
         elif (
             actingData['action'] in dodges and contestingData['action'] in dodgeableAttacks
-            and contestingData["target"] == actingData["unitId"]
+            and actingData["unitId"] in contestingData["burstSplit"]
             ):
                 return True
         elif (
             actingData['action'] in commsAttacks and contestingData['action'] in resets
-            and actingData["target"] == contestingData["unitId"]
+            and contestingData["unitId"] in actingData["burstSplit"]
             ):
                 return True
         elif (
             actingData['action'] in resets and contestingData['action'] in commsAttacks
-            and contestingData["target"] == actingData["unitId"]
+            and actingData["unitId"] in contestingData["burstSplit"]
             ):
                 return True
         # TODO take acount of smoke special dodge being able to block multiple attakcs, have a list that initially includes
         #   everyone when asking the smoke dodger to specify targets but that people can be removed from
-        # Smoke dodges keep a list of all those who the smoke blocks in their targets field
+        # Smoke dodges keep a list of all those who the smoke blocks in their burstSplit field
         elif ( 
             actingData['action'] in smokeDodgeableAttacks and contestingData['action'] == "Smoke Dodge"     
-            and actingData["target"] == contestingData["unitId"] and actingData["unitId"] in contestingData["target"]
+            and contestingData["unitId"] in actingData["burstSplit"] and actingData["unitId"] in contestingData["burstSplit"]
             and not overlaps(actingData["modifiers"], ignoresSmoke)):
                 return True
         elif (
             actingData['action'] == "Smoke Dodge" and contestingData['action'] in smokeDodgeableAttacks
-            and contestingData["target"] == actingData["unitId"] and contestingData["unitId"] in actingData["target"]
+            and actingData["unitId"] in contestingData["burstSplit"]  and contestingData["unitId"] in actingData["burstSplit"]
             and not overlaps(contestingData["modifiers"], ignoresSmoke)
             ):
                 return True
