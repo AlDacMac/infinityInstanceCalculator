@@ -154,11 +154,13 @@ class Instance:
         elif (
             actingData['action'] in dodgeableAttacks and contestingData['action'] in dodges
             and contestingData["unitId"] in actingData["burstSplit"]
+            and not("Direct Template" in actingData["tool1"]["template"]) 
             ):
                 return True
         elif (
             actingData['action'] in dodges and contestingData['action'] in dodgeableAttacks
             and actingData["unitId"] in contestingData["burstSplit"]
+            and not("Direct Template" in contestingData["tool1"]["template"])
             ):
                 return True
         elif (
