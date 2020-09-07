@@ -112,8 +112,10 @@ class Instance:
         for id in self.orders.keys():
             self.orders[id]["losInfo"][unitId] = {}
             self.orders[id]["rangeInfo"][unitId] = 0
-            unitData["losInfo"][id] = {}
-            unitData["rangeInfo"][id] = 0
+            if not(id in unitData["losInfo"]):
+                unitData["losInfo"][id] = {}
+            if not(id in unitData["rangeInfo"]):
+                unitData["rangeInfo"][id] = 0
         self.orders[unitId] = unitData
 
     
