@@ -66,7 +66,8 @@ sixthSense = {"Sixth Sense L1", "Sixth Sense L2"}
 
 
 # A list of units, what action they are performing, and what their target it.
-# TODO consider reformatting all methods to be part of the instance class, now that they can simply take id
+# TODO Do a proper reformat of methods, some should be instance methods and some should not, depending on if they need to make 
+#   use of the structure of the Instance.
 class Instance:
     def __init__(self):
         # All units, regardless of player, are stored in the orders dict
@@ -192,19 +193,20 @@ class Instance:
         elif action in dodges:
             return self.dodgeModsRecieved(actingId, contestingId)
         elif action in ccAttacks:
-            return self.ccModsInflicted(actingId, contestingId)
+            return self.ccModsRecieved(actingId, contestingId)
 
 
     def calcModsInflicted(self, contestingId, actingId):
         action = self.orders[contestingId]["action"]
         if action in bsAttacks:
-            return self.bsModsRecieved(actingId, contestingId)
+            return self.bsModsInflicted(contestingId, actingId)
         elif action in dodges:
             return self.dodgeModsInflicted(contestingId, actingId)
         elif action in ccAttacks:
-            return self.ccModsInflicted(actingId, contestingId)
+            return self.ccModsInflicted(contestingId, actingId)
 
     # For the sake of consistency, the unit that the modifiers will apply to should always come first in the variables
+    #   - the "acting" can be thought of as the unit who's choice of action causes the modifiers
 
     # TODO add proper checks when face to face is required
     # Calculates the net modifier that a model applies to an enemy by a bs attack against them.
@@ -513,6 +515,8 @@ def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo
         unitData["effects"]["wounded"] += failedArmSaves
         effects["wounded"] += failedArmSaves
     # TODO consider how to handle shock sending people straight to dead - do we include it in the wounds section also?
+    # - note on this: we'd have to remove from armWoundAmmo
+    # - alternately, have the "woundAmmo" check as an else if of shock and viral checks
     if "Monofilament" in ammo or ("shock" in ammo and unitData["stats"]["wounds"] == 1):
         unitData["effects"]["dead"] += failedArmSaves
         effects["ead"] += failedArmSaves
