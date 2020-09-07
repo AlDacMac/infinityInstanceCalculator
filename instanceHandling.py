@@ -129,7 +129,7 @@ class Instance:
         elif actingData["action"] in dodges:
             return "ph"
         elif actingData["action"] == "CC Attack":
-            return "phs"
+            return "cc"
 
     # Contested takes two unitIds and their corresponding data dicts and determines if they contest each other.
     # We assume that two actions either mutually contest or mutually don't, even if one action does not actualy require dice
