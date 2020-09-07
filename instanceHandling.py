@@ -148,7 +148,8 @@ class Instance:
         elif (
             actingData["action"] in genericAttacks and contestingData["action"] in genericAttacks
             and actingData["unitId"] in contestingData["burstSplit"] and contestingData["unitId"] in actingData["burstSplit"]
-            ):
+            and not("Direct Template" in actingData["tool1"]["template"]) 
+            and not("Direct Template" in contestingData["tool1"]["template"])):
                 return True
         elif (
             actingData['action'] in dodgeableAttacks and contestingData['action'] in dodges
