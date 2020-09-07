@@ -539,11 +539,11 @@ def addSaveEffects(unitData, failedArmSaves, failedBtsSaves, failedPhSaves, ammo
         unitData["effects"]["stunned"] += failedBtsSaves
         effects["stunned"] += failedBtsSaves
     if "ADH" in ammo:
-        unitData["effects"]["immobilised2"] += 1
-        effects["immobilised2"] += 1
+        unitData["effects"]["immobilised2"] += failedPhSaves
+        effects["immobilised2"] += failedPhSaves
     if "Viral" in ammo and unitData["stats"]["wounds"] == 1:
-        unitData["effects"]["dead"] += 1
-        effects["immobilised2"] += 1
+        unitData["effects"]["dead"] += failedBtsSaves
+        effects["dead"] += failedBtsSaves
     return effects
 
 
