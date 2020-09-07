@@ -415,6 +415,7 @@ class Instance:
                     totalMod -= 6
             elif ("Surprise Attack:decoy" in attackerModifiers):
                 totalMod -= 6
+        return totalMod
 
 # Returns true if the attacker is in turn being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
