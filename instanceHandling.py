@@ -491,9 +491,9 @@ def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
     if overlaps(phAmmo, ammo):
         failedPhSaves += phfailchance * hits
 
-    return {"failedArmSaves": failedArmSaves, 
-            "failedBtsSaves": failedBtsSaves, 
-            "failedPhSaves": failedPhSaves}
+    return {"failedArmSaves": round(failedArmSaves, 4), 
+            "failedBtsSaves": round(failedBtsSaves, 4), 
+            "failedPhSaves": round(failedPhSaves, 4)}
 
 
 # Adds the effects of failed saves to a unit with respect to the ammo used on it, returns the increase in average effects
