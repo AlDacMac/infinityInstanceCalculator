@@ -564,8 +564,23 @@ def coverApplies(shooterData, targetData):
 
 # Returns the damage dealt by the unit's weapon, adjusted by modifiers
 def calculateDamage(unitData):
-    damage = int(unitData["tool1"]["damage"])
-    if (("Fatality L1" in unitData["modifiers"]) or ("Fatality L2" in unitData["modifiers"])):
+    damString = unitData["tool1"]["damage"]
+    phRegex = re.compile(r'PH.*')
+    wipRegex = re.compile(r'WIP.*')
+    phMatch = phRegex.match(damString)
+    wipMatch = wipRegex.match(damString)
+    if phMatch:
+        damage = unitData["stats"]["ph"]
+        if not(damString[2:] == ''):
+            damage += int(damString[2:])
+    elif wipMatch:
+        damage = unitData["stats"]["wip"]
+        if not(damString[3:] == ''):
+            damage += int(damString[3:])
+    else:
+        damage = int(damString)
+    if ((("Fatality L1" in unitData["modifiers"]) or ("Fatality L2" in unitData["modifiers"])) and
+        not("Direct Template" in unitData["tool1"]["template"])):
         damage += 1
     return damage
 
