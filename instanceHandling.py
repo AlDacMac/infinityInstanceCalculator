@@ -436,7 +436,10 @@ def sixthSenseApplies(attackerData, targetData):
                 or ("Sixth Sense L1" in attackerModifiers and attackerData["rangeInfo"][targetData["unitId"]] <= 8)):
         return True
 
-def calcFailedSaves(attackerData, targetData, hits, crits, ammo):
+def calcFailedSaves(attackerData, targetData, hits, crits, ammo=None):
+    if not ammo:
+        ammo = attackerData["tool1"]["ammo"]
+    ammo = applyImmunity(targetData, ammo)
     failedArmSaves = 0
     failedBtsSaves = 0
     failedPhSaves = 0
