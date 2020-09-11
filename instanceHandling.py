@@ -425,7 +425,8 @@ class Instance:
                 totalMod -= 6
         return totalMod
 
-# Returns true if the attacker is in turn being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
+# Returns true if the attacker can make use of sixth sense
+# This is when they are in turn being attacked at by the target, and either has Sixth Sense L2 or is within 8 inches
 #   and has Sixth Sense L1
 def sixthSenseApplies(attackerData, targetData):
     targetModifiers = targetData["modifiers"]
