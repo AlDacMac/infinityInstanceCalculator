@@ -590,6 +590,21 @@ def calculateDamage(unitData):
             damage += int(damString[3:])
     else:
         damage = int(damString)
+    if unitData["action"] in ccAttacks:
+        if "Natural Born Warrior: B" in unitData["modifiers"]:
+            damage += 1
+        if "Martial Arts L1" in unitData["modifiers"]:
+            damage += 1
+        elif "Martial Arts L2" in unitData["modifiers"]:
+            damage += 3
+        if overlaps({"Protheion L1", "Protheion L2"}, unitData["modifiers"]):
+            damage += 1
+        elif "Protheion L3" in unitData["modifiers"]:
+            damage += 3
+        if overlaps({"Guard L1", "Guard L2", "Guard L3"}, unitData["modifiers"]):
+            damage += 2
+        elif "Guard L4" in unitData["modifiers"]:
+            damage += 3
     if ((("Fatality L1" in unitData["modifiers"]) or ("Fatality L2" in unitData["modifiers"])) and
         not("Direct Template" in unitData["tool1"]["template"])):
         damage += 1
