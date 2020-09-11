@@ -89,10 +89,12 @@ class Instance:
             "player": player,           # 1 for active, 2 for reactive
             "stats": stats,
             "action": action,
+            # TODO implement cases for no LOS, where visual mods don't apply
             "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
             "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
             "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer - not that this does not mean that cover can be applied as marksmanship or template weapons ignore it
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
+            # TODO when the web app sets inputs to here, have dodge target everyone targeting the dodger
             "burstSplit": burstSplit,       # A dict from string (target IDs) to int (burst for that target)
             "tool1": tool1,
             "tool2": tool2,
@@ -567,6 +569,7 @@ def coverApplies(shooterData, targetData):
     return True
 
 # Returns the damage dealt by the unit's weapon, adjusted by modifiers
+# TODO: Add checks so that fatality only activates on attacks that use bs attribute
 def calculateDamage(unitData):
     damString = unitData["tool1"]["damage"]
     phRegex = re.compile(r'PH.*')
