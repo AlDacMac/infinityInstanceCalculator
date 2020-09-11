@@ -1,6 +1,7 @@
 from dataParsing import *
 from math import *
 from misc.misc import overlaps
+from dicemaths.infinity import (contested_roll_hit_avg, uncontested_hit_avg)
 import re
 
 # proper capitalisation is used for real skills and equipment, camelCase is used for tags I've created
