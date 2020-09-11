@@ -53,7 +53,7 @@ commsAttacks = {"Hacking", "Jammer", "Sat-Lock"}
 
 resets = {"Reset"}
 
-nonContest = {"nonContest", "Beserk"}
+nonContest = {"nonContest", "Berserk"}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # Tags used to denote categories of skill/equipment
