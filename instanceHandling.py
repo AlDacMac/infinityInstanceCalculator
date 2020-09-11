@@ -226,7 +226,7 @@ class Instance:
         targetModifiers = targetData["modifiers"]
         shooterModifiers = shooterData["modifiers"]
         totalMod = 0   
-        if not overlaps({"Sixth Sense L1", "Sixth Sense L2"}, targetModifiers) and self.contested(targetId, shooterId):
+        if not sixthSenseApplies(targetId, shooterId):
             if not ("Multispectral Visor L3" in targetModifiers):
                 if ("Surprise Shot L2:Camo" in shooterModifiers):
                     totalMod -= 6
