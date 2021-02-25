@@ -91,6 +91,7 @@ class Instance:
             "action": action,
             # TODO implement cases for no LOS, where visual mods don't apply
             "losInfo": losInfo,         # Dict from string (target IDs) to set (of conditions that apply to LOS, such as "noLOS", or "Eclipse")
+            # TODO add a special target to rangeInfo called "smokeTarget for those doing smoke dodge"
             "rangeInfo": rangeInfo,     # Dict from string (target IDs) to int (range)
             "coverInfo": coverInfo,     # A set of the target Ids of units with partial cover agaisnt the firer - not that this does not mean that cover can be applied as marksmanship or template weapons ignore it
             "modifiers": modifiers,     # A set of skills and equipment, stored as strings
@@ -121,7 +122,64 @@ class Instance:
                 unitData["rangeInfo"][id] = 0
         self.orders[unitId] = unitData
 
-    
+    # Given an two units, adds the effects of the actor with respect to the opponent to the outcome of the instance
+    # What this method returns will vary based on the type of action - usually it's "effects" set as returned by 
+    #   the saveEffects methods, but could be different for a dodge.
+    def handleBetween(self, actingId, opponentId):
+        actingData = self.orders[actingId]
+        opponentData = self.orders[opponentId]
+        if actingData["action"] in dodges and not(actingId in opponentData["burstSplit"]):
+            return None
+        contested = self.contested(actingId, opponentId)
+        actingStat = self.orders[actingId]["stats"][self.calculateStat(actingId)]
+        actingBurst = self.orders[actingId]["burstSplit"][opponentId]
+        actingStatMod = 0
+        actingStatMod += self.calcModsRecieved(actingId, opponentId)
+        if actingId in self.orders[opponentId]["burstSplit"]:
+            actingStatMod += self.calcModsInflicted(actingId, opponentId)
+            # Most of the time if the opponent is targeting you, their roll will count somehow against yours
+            opponentStat = self.orders[opponentId]["stats"][self.calculateStat(opponentId)]
+            opponentBurst = self.orders[opponentId]["burstSplit"][actingId]
+            opponentStatMod = 0
+            opponentStatMod += self.calcModsRecieved(opponentId, actingId)
+            opponentStatMod += self.calcModsInflicted(opponentId, actingId)
+            opponentStatMod = min(12, max(-12, opponentStatMod))
+        actingStatMod = min(12, max(-12, actingStatMod))
+        # Method branches down through the possible senarios
+        if actingData["action"] in genericAttacks:
+            if contested:
+                # TODO Add logic for electric pulse
+                (successes, crits) = (contested_roll_hit_avg(actingBurst, (actingStat+actingStatMod), 
+                    opponentBurst, (opponentStat+opponentStatMod)))             
+            else:
+                probDodge = 0
+                # TODO Update all multi line conditionals to this format
+                if (opponentData["action"] in dodges or (opponentData["action"] == "Smoke Dodge"
+                and not "Direct Template" in actingData["tool1"])):
+                    probDodge = (opponentStat+opponentStatMod) / 20.0
+                    probDodge = max(0, min(1, probDodge))
+                    print(probDodge)
+                if "Direct Template" in actingData["tool1"]["template"]:
+                    successes = actingBurst * (1-probDodge)
+                    crits = 0
+                else:
+                    (successes, crits) = uncontested_hit_avg(actingBurst, actingStat+actingStatMod)
+                    successes *= (1-probDodge)
+                    crits *= (1-probDodge)
+        if actingData["action"] in dodges:
+            if contested: 
+                (successes, crits) = (contested_roll_hit_avg(actingBurst, (actingStat+actingStatMod), 
+                    opponentBurst, (opponentStat+opponentStatMod)))
+            else: 
+                (successes, crits) = uncontested_hit_avg(actingBurst, actingStat+actingStatMod)
+        # If the action was an attack, we go through save calculations and return the effects
+        if actingData["action"] in genericAttacks:
+            failedSaves = calcFailedSaves(actingData, opponentData, successes, crits, {actingData["tool1"]["ammo"]})
+            saveEffects = addSaveEffects(opponentData, failedSaves["failedArmSaves"], failedSaves["failedBtsSaves"], 
+                failedSaves["failedPhSaves"], {actingData["tool1"]["ammo"]})
+            return saveEffects
+        # If the action was not an attack, we returns the successes and crits
+        return (round(successes, 4), round(crits, 4))
 
 
     def calculateStat(self, actingId):
@@ -423,6 +481,49 @@ class Instance:
                     totalMod -= 6
             elif ("Surprise Attack:decoy" in attackerModifiers):
                 totalMod -= 6
+        return totalMod
+
+    # Note: not yet anything to prevent you blocking in an illegal situation
+    def smokeModsRecieved(self, smokerId, attackerId):
+        totalMod = 0
+        smokerData = self.orders[smokerId]
+        smokerModifiers = smokerData["modifiers"]
+        attackerData = self.orders[attackerId]
+        attackerModifiers = attackerData["modifiers"]
+        # ------------------------------------------------------------------------------------------------------------------
+        # Visibility mods, elifs are used as only the worst will apply
+        # ------------------------------------------------------------------------------------------------------------------
+        # Note, some of the modifiers here only really apply in situations that don't make logical sense
+        # - I trust the user not to ask about smoke dodging with regular smoke against an MSV user.
+        if "noLos" in smokerData["losInfo"][attackerId] and not sixthSenseApplies(smokerData, attackerData):
+            totalMod -= 6
+        elif "Eclipse" in smokerData["losInfo"][attackerId] \
+            and not sixthSenseApplies(smokerData, attackerData):
+                totalMod -= 6
+        elif "Smoke" in smokerData["losInfo"][attackerId] \
+            and not overlaps(smokerModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}) \
+            and not sixthSenseApplies(smokerData, attackerData):
+                totalMod -= 6
+        elif "Poor Visibility" in smokerData["losInfo"][attackerId] \
+                and not overlaps(smokerModifiers, {"Multispectral Visor L2", "Multispectral Visor L3"}):
+            if ("Multispectral Visor L1" in smokerModifiers):
+                totalMod -= 3
+            else:
+                totalMod -= 6
+        elif "Low Visibility" in smokerData["losInfo"][smokerData["unitId"]] \
+                and not overlaps(smokerModifiers, {"Multispectral Visor L1", "Multispectral Visor L2", "Multispectral Visor L3"}):
+            totalMod -= 3
+        # ------------------------------------------------------------------------------------------------------------------
+        # Other mods
+        # ------------------------------------------------------------------------------------------------------------------
+        if ("fireteam 5" in smokerModifiers):
+            totalMod += 3
+        if ("TinBot E (Spotter)" in smokerModifiers and self.calculateStat(smokerId) == "bs"):
+            totalMod += 3
+        if (smokerModifiers["action"] == "Marksmanship LX"):
+            totalMod += 6
+        totalMod += smokerModifiers["rangeInfo"]["smokeTarget"]
+        # ------------------------------------------------------------------------------------------------------------------
         return totalMod
 
 # Returns true if the attacker can make use of sixth sense
